@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "title": "Lasten kasvomaalaus",
+    "imgUrl": "/testImages/facepaint.jpg",
+    "date": "2024-01-15",
+    "time": "10:00 - 12:00",
+    "location": "Helsinki",
+    "description": "Tule kasvomaalausworkshoppiin!"
+  },
+  {
+    "id": 2,
+    "title": "Lukuhetki perheille",
+    "imgUrl": "/testImages/reading.jpg",
+    "date": "2024-02-10",
+    "time": "14:00 - 15:00",
+    "location": "Espoo",
+    "description": "Tutustutaan yhdessä kirjoihin ja tarinoihin."
+  },
+  {
+    "id": 3,
+    "title": "Lasten teatteriesitys",
+    "imgUrl": "/testImages/rangers.jpg",
+    "date": "2024-03-05",
+    "time": "11:00 - 12:30",
+    "location": "Tampere",
+    "description": "Nauti hauska ja opettavainen teatteriesitys koko perheelle."
+  }
+]

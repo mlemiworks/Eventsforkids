@@ -3,6 +3,8 @@
 This is a Next.js exercise project for a children’s events webpage.  
 At the moment, the site uses **placeholder event cards**, but the long-term goal is to evolve it into a fully functional platform.
 
+![Homepage preview](screenshots/eventsforkids.png)
+
 ## Planned Features
 
 - User authentication to allow users to add, edit, and remove events

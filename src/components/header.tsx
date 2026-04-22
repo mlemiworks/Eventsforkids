@@ -1,6 +1,31 @@
+'use client';
+import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 import LoginDropdown from './login-dropdown';
 
 const Header = () => {
+  const { status } = useSession();
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [loginMessage, setLoginMessage] = useState('');
+
+  const handleCreateEventClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (status !== 'authenticated') {
+      e.preventDefault();
+      setLoginMessage('Kirjaudu sisään luodaksesi tapahtuma.');
+      setLoginOpen(true);
+    }
+  };
+
+  const handleToggleLogin = () => {
+    setLoginMessage('');
+    setLoginOpen((v) => !v);
+  };
+
+  const handleCloseLogin = () => {
+    setLoginOpen(false);
+    setLoginMessage('');
+  };
+
   return (
     <header className="w-full bg-white dark:bg-black py-4 mb-20 border-b border-gray-200 dark:border-gray-700">
       <div className="w-auto mx-10 px-4 flex items-center justify-between">
@@ -17,6 +42,7 @@ const Header = () => {
             <li>
               <a
                 href="/create-event"
+                onClick={handleCreateEventClick}
                 className="text-gray-700 dark:text-gray-300 hover:underline"
               >
                 Luo tapahtuma
@@ -28,7 +54,12 @@ const Header = () => {
               </a>
             </li>
             <li>
-              <LoginDropdown />
+              <LoginDropdown
+                open={loginOpen}
+                onToggle={handleToggleLogin}
+                onClose={handleCloseLogin}
+                message={loginMessage}
+              />
             </li>
           </ul>
         </nav>

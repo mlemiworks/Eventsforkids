@@ -1,4 +1,5 @@
 import { fetchEventById } from '@/src/lib/dataFetching';
+import EventActions from '@/src/components/event-actions';
 
 const EventPage = async ({
   params,
@@ -11,15 +12,49 @@ const EventPage = async ({
 
   if (!event) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
+      <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-black">
         <p className="text-gray-700 dark:text-gray-300">Tapahtumaa ei löydy.</p>
       </div>
     );
   }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black p-4">
-      <div className="max-w-3xl w-full">
-        <h1>{event.title}</h1>
+    <div className="bg-zinc-50 dark:bg-black">
+      <img
+        src={event.imgUrl}
+        alt={event.title}
+        className="w-full h-72 object-cover"
+      />
+      <div className="max-w-3xl mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
+          {event.title}
+        </h1>
+        <div className="flex gap-8 mb-8">
+          <div>
+            <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1">
+              Päivämäärä
+            </p>
+            <p className="text-gray-900 dark:text-white">{event.date}</p>
+          </div>
+          <div>
+            <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1">
+              Kellonaika
+            </p>
+            <p className="text-gray-900 dark:text-white">{event.time || '—'}</p>
+          </div>
+          <div>
+            <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1">
+              Sijainti
+            </p>
+            <p className="text-gray-900 dark:text-white">{event.location || '—'}</p>
+          </div>
+        </div>
+        {event.description && (
+          <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+            {event.description}
+          </p>
+        )}
+        <EventActions eventId={event.id} createdBy={event.createdBy} />
       </div>
     </div>
   );

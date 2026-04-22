@@ -43,3 +43,12 @@ export const createEvent = async (
   await writeFile(DB_PATH, JSON.stringify(db, null, 2), 'utf-8');
   return newEvent;
 };
+
+export const deleteEvent = async (id: number): Promise<boolean> => {
+  const db = await readDb();
+  const index = db.events.findIndex((e) => e.id === id);
+  if (index === -1) return false;
+  db.events.splice(index, 1);
+  await writeFile(DB_PATH, JSON.stringify(db, null, 2), 'utf-8');
+  return true;
+};

@@ -1,3 +1,5 @@
+import LoginDropdown from './login-dropdown';
+
 const Header = () => {
   return (
     <header className="w-full bg-white dark:bg-black py-4 mb-20 border-b border-gray-200 dark:border-gray-700">
@@ -6,30 +8,27 @@ const Header = () => {
           Lasten tapahtumat
         </h1>
         <nav>
-          <ul className="flex space-x-10">
+          <ul className="flex items-center space-x-10">
             <li>
-              <a
-                href="#"
-                className="text-gray-700 dark:text-gray-300 hover:underline"
-              >
+              <a href="/" className="text-gray-700 dark:text-gray-300 hover:underline">
                 Etusivu
               </a>
             </li>
             <li>
               <a
-                href="#"
+                href="/create-event"
                 className="text-gray-700 dark:text-gray-300 hover:underline"
               >
                 Luo tapahtuma
               </a>
             </li>
             <li>
-              <a
-                href="#"
-                className="text-gray-700 dark:text-gray-300 hover:underline"
-              >
+              <a href="#" className="text-gray-700 dark:text-gray-300 hover:underline">
                 Yhteystiedot
               </a>
+            </li>
+            <li>
+              <LoginDropdown />
             </li>
           </ul>
         </nav>

@@ -7,3 +7,9 @@ export interface Event {
   location: string;
   imgUrl: string;
 }
+
+export interface User {
+  id: number;
+  email: string;
+  passwordHash: string;
+}

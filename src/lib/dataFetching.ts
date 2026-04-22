@@ -1,18 +1,25 @@
-import { Event } from '../types/types';
+import { Event, User } from '../types/types';
+import { readFile } from 'fs/promises';
+import path from 'path';
 
-// simulate fetching data but actually just return json data from db.json
+const DB_PATH = path.join(process.cwd(), 'public', 'db.json');
+
+async function readDb(): Promise<{ events: Event[]; users: User[] }> {
+  const raw = await readFile(DB_PATH, 'utf-8');
+  return JSON.parse(raw) as { events: Event[]; users: User[] };
+}
+
 export const fetchEvents = async (): Promise<Event[]> => {
-  // Simulate network delay
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  // Fetch data from local db.json file
-  const response = await fetch('http://localhost:3000/db.json');
-  const data = await response.json();
-  return data;
+  const db = await readDb();
+  return db.events;
 };
 
-// simulate fetching a single event by id
 export const fetchEventById = async (id: number): Promise<Event | null> => {
   const events = await fetchEvents();
-  const event = events.find((e) => e.id === id) || null;
-  return event;
+  return events.find((e) => e.id === id) ?? null;
+};
+
+export const findUserByEmail = async (email: string): Promise<User | null> => {
+  const db = await readDb();
+  return db.users.find((u) => u.email === email) ?? null;
 };

@@ -6,6 +6,7 @@ export interface Event {
   time: string;
   location: string;
   imgUrl: string;
+  createdBy?: string;
 }
 
 export interface User {

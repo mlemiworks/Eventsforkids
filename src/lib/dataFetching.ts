@@ -32,3 +32,14 @@ export const createUser = async (email: string, passwordHash: string): Promise<U
   await writeFile(DB_PATH, JSON.stringify(db, null, 2), 'utf-8');
   return newUser;
 };
+
+export const createEvent = async (
+  fields: Omit<Event, 'id'>,
+): Promise<Event> => {
+  const db = await readDb();
+  const id = db.events.length > 0 ? Math.max(...db.events.map((e) => e.id)) + 1 : 1;
+  const newEvent: Event = { id, ...fields };
+  db.events.push(newEvent);
+  await writeFile(DB_PATH, JSON.stringify(db, null, 2), 'utf-8');
+  return newEvent;
+};

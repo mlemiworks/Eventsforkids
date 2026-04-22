@@ -1,3 +1,6 @@
+// Shown by Next.js while the event detail page is fetching its data.
+// Mirrors the structure of the real page (banner → title → metadata row →
+// description) so the layout doesn't shift when content arrives.
 export default function Loading() {
   return (
     <div className="animate-pulse bg-zinc-50 dark:bg-black">

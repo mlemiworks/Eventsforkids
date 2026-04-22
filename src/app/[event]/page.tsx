@@ -1,3 +1,6 @@
+// Server component — fetches data at render time with no client-side JS needed.
+// In Next.js App Router, params is a Promise because dynamic route segments are
+// resolved asynchronously; we must await it before reading the value.
 import { fetchEventById } from '@/src/lib/dataFetching';
 import EventActions from '@/src/components/event-actions';
 
@@ -7,6 +10,7 @@ const EventPage = async ({
   params: Promise<{ event: string }>;
 }) => {
   const resolvedParams = await params;
+  // URL segments are always strings, so we parse to a number for the DB lookup
   const eventIdNumber = parseInt(resolvedParams.event, 10);
   const event = await fetchEventById(eventIdNumber);
 
@@ -54,6 +58,9 @@ const EventPage = async ({
             {event.description}
           </p>
         )}
+        {/* EventActions is a client component because it needs useSession to check
+            if the logged-in user is the creator — that information is only
+            available in the browser via React context */}
         <EventActions eventId={event.id} createdBy={event.createdBy} />
       </div>
     </div>

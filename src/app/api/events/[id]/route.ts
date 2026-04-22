@@ -7,6 +7,8 @@ export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  // Verify the user is logged in — anyone can call a DELETE request directly,
+  // so we can't rely on the UI hiding the button
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
     return NextResponse.json({ error: 'Kirjautuminen vaaditaan' }, { status: 401 });
@@ -19,6 +21,8 @@ export async function DELETE(
     return NextResponse.json({ error: 'Tapahtumaa ei löydy' }, { status: 404 });
   }
 
+  // Only the event creator can delete — verified server-side so it can't be
+  // bypassed by a logged-in user who didn't create the event
   if (event.createdBy !== session.user.email) {
     return NextResponse.json({ error: 'Ei oikeutta poistaa tätä tapahtumaa' }, { status: 403 });
   }

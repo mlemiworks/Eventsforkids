@@ -1,3 +1,6 @@
+// No 'use client' here — this is a server component. Next.js renders it on the
+// server so we can call async functions (like fetchEvents) directly at the top
+// level, without needing useEffect or a loading state in component code.
 import EventCard from '../components/eventCard';
 import type { Event } from '../types/types';
 import { fetchEvents } from '../lib/dataFetching';

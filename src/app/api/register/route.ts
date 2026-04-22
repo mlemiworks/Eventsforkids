@@ -28,6 +28,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // 10 salt rounds is the bcrypt default — high enough to be slow for attackers
+  // brute-forcing hashes, low enough that a single registration feels instant
   const passwordHash = await bcrypt.hash(password, 10);
   await createUser(email, passwordHash);
 

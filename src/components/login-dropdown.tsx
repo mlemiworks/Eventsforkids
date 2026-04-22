@@ -2,11 +2,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { useSession, signIn, signOut } from 'next-auth/react';
 
+// open/onToggle/onClose are controlled by the Header so that other nav elements
+// (like "Luo tapahtuma") can open this dropdown from outside it.
 type Props = {
   open: boolean;
   onToggle: () => void;
   onClose: () => void;
-  message?: string;
+  message?: string; // optional prompt shown at the top of the dropdown
 };
 
 export default function LoginDropdown({ open, onToggle, onClose, message }: Props) {
@@ -16,8 +18,9 @@ export default function LoginDropdown({ open, onToggle, onClose, message }: Prop
   const [error, setError] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Close the dropdown when the user clicks anywhere outside the container div.
-  // We attach the listener only while the dropdown is open to avoid unnecessary work.
+  // Close the dropdown when the user clicks anywhere outside the container.
+  // We attach the listener only while open to avoid unnecessary work,
+  // and the cleanup function (the return value) removes it when it's no longer needed.
   useEffect(() => {
     if (!open) return;
     const handleClickOutside = (e: MouseEvent) => {
@@ -32,6 +35,8 @@ export default function LoginDropdown({ open, onToggle, onClose, message }: Prop
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    // redirect: false prevents NextAuth from doing a full page redirect on
+    // success — we handle the result ourselves and close the dropdown instead
     const result = await signIn('credentials', { email, password, redirect: false });
     if (result?.error) {
       setError('Väärä sähköposti tai salasana');
@@ -61,6 +66,7 @@ export default function LoginDropdown({ open, onToggle, onClose, message }: Prop
   }
 
   return (
+    // ref covers the button + panel so clicks on either don't trigger onClose
     <div className="relative" ref={containerRef}>
       <button
         onClick={onToggle}

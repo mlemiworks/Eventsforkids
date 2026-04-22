@@ -1,4 +1,6 @@
 'use client';
+// Registration requires form state and user interaction, so this must be a
+// client component. There's no server-side auth check here — anyone can register.
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -14,6 +16,7 @@ export default function RegisterPage() {
     e.preventDefault();
     setError('');
 
+    // Check passwords match client-side to give instant feedback without a round-trip
     if (password !== confirm) {
       setError('Salasanat eivät täsmää');
       return;
@@ -26,10 +29,12 @@ export default function RegisterPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
+      // TypeScript: cast the response so the compiler knows what shape to expect
       const data = (await res.json()) as { error?: string };
       if (!res.ok) {
         setError(data.error ?? 'Rekisteröinti epäonnistui');
       } else {
+        // Go home after registration — the user can log in from the nav dropdown
         router.push('/');
       }
     } catch {

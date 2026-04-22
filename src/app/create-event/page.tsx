@@ -1,8 +1,12 @@
 'use client';
+// This page uses form state and user interaction, so it must be a client component.
+// The middleware in src/middleware.ts redirects unauthenticated users before
+// they ever reach this page.
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function CreateEventPage() {
+  // useRouter lets us navigate programmatically after the event is created
   const router = useRouter();
   const [title, setTitle] = useState('');
   const [date, setDate] = useState('');
@@ -24,15 +28,19 @@ export default function CreateEventPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, date, time, location, description, imgUrl }),
       });
+      // TypeScript: we cast the JSON response to a known shape so the compiler
+      // knows what fields to expect (id on success, error on failure)
       const data = (await res.json()) as { id?: number; error?: string };
       if (!res.ok) {
         setError(data.error ?? 'Tapahtuman luonti epäonnistui');
       } else {
+        // Navigate to the new event's detail page immediately after creation
         router.push(`/${data.id}`);
       }
     } catch {
       setError('Jokin meni pieleen. Yritä uudelleen.');
     } finally {
+      // finally runs whether the request succeeded or failed, so loading always resets
       setLoading(false);
     }
   };

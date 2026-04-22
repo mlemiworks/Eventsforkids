@@ -1,4 +1,6 @@
 'use client';
+// Header must be a client component so it can read auth status (useSession)
+// and manage the login dropdown's open state (useState).
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import LoginDropdown from './login-dropdown';
@@ -9,6 +11,8 @@ const Header = () => {
   const [loginMessage, setLoginMessage] = useState('');
 
   const handleCreateEventClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Block navigation and open the login dropdown with a prompt instead,
+    // so unauthenticated users know why they can't access the page
     if (status !== 'authenticated') {
       e.preventDefault();
       setLoginMessage('Kirjaudu sisään luodaksesi tapahtuma.');
@@ -17,6 +21,8 @@ const Header = () => {
   };
 
   const handleToggleLogin = () => {
+    // Clear any prompt message when the user manually opens the dropdown —
+    // the message only makes sense when triggered by "Luo tapahtuma"
     setLoginMessage('');
     setLoginOpen((v) => !v);
   };
@@ -54,6 +60,8 @@ const Header = () => {
               </a>
             </li>
             <li>
+              {/* open/onToggle/onClose are lifted up here so that clicking
+                  "Luo tapahtuma" can open the dropdown from outside it */}
               <LoginDropdown
                 open={loginOpen}
                 onToggle={handleToggleLogin}

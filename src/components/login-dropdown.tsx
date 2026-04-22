@@ -75,6 +75,12 @@ export default function LoginDropdown() {
               Kirjaudu sisään
             </button>
           </form>
+          <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+            Ei tiliä?{' '}
+            <a href="/register" className="underline hover:opacity-70">
+              Rekisteröidy
+            </a>
+          </p>
         </div>
       )}
     </div>

@@ -1,5 +1,5 @@
 import { Event, User } from '../types/types';
-import { readFile } from 'fs/promises';
+import { readFile, writeFile } from 'fs/promises';
 import path from 'path';
 
 const DB_PATH = path.join(process.cwd(), 'public', 'db.json');
@@ -22,4 +22,13 @@ export const fetchEventById = async (id: number): Promise<Event | null> => {
 export const findUserByEmail = async (email: string): Promise<User | null> => {
   const db = await readDb();
   return db.users.find((u) => u.email === email) ?? null;
+};
+
+export const createUser = async (email: string, passwordHash: string): Promise<User> => {
+  const db = await readDb();
+  const id = db.users.length > 0 ? Math.max(...db.users.map((u) => u.id)) + 1 : 1;
+  const newUser: User = { id, email, passwordHash };
+  db.users.push(newUser);
+  await writeFile(DB_PATH, JSON.stringify(db, null, 2), 'utf-8');
+  return newUser;
 };

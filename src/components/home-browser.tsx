@@ -17,10 +17,7 @@ export default function HomeBrowser({ events }: { events: Event[] }) {
       events.filter((e) => {
         if (cat && e.category !== cat) return false;
         if (city && e.city !== city) return false;
-        if (
-          q &&
-          !`${e.title} ${e.description}`.toLowerCase().includes(q.toLowerCase())
-        )
+        if (q && !`${e.title} `.toLowerCase().includes(q.toLowerCase()))
           return false;
         return true;
       }),

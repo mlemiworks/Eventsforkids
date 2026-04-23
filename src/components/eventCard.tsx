@@ -1,45 +1,101 @@
 import Link from 'next/link';
-import { Event } from '../types/types';
+import type { Event } from '../types/types';
+import { CATEGORY_BY_KEY } from '../lib/categories';
+import { Illustration, type IllustrationId } from './ui/Illustrations';
 
-const EventCard = ({ event }: { event: Event }) => {
+// toLocaleDateString with 'fi-FI' locale formats as "15. huhtikuuta" (Finnish long form)
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString('fi-FI', {
+    day: 'numeric',
+    month: 'long',
+  });
+}
+
+const isValidUrl = (value?: string) => {
+  if (!value) return false;
   return (
-    <div className="border border-gray-300 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200 bg-white dark:bg-gray-800">
-      <Link href={`/${event.id}`}>
-        {/* The button wraps the image to create a hover overlay effect.
-            `group` on the parent lets child elements react to the parent's
-            hover state via the `group-hover:` Tailwind variant. */}
-        <button className="w-full relative group focus:outline-none mb-4 hover:cursor-pointer">
-          {/* Overlay: hidden by default, fades in on hover via group-hover:opacity-100 */}
-          <span className="absolute inset-0  flex items-center justify-center rounded-md opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-            <span className="absolute inset-0 bg-black bg-opacity-40 rounded-md"></span>
-            <span className="relative text-white text-center text-lg font-semibold">
-              {event.title}
-            </span>
-          </span>
-
-          {/* Image fades out on hover so the overlay text is legible */}
-          <img
-            src={event.imgUrl}
-            alt={event.title}
-            className="w-full h-48 object-cover rounded-md  transition-opacity duration-200 group-hover:opacity-20"
-          />
-        </button>
-      </Link>
-
-      <h2 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">
-        {event.title}
-      </h2>
-      <p className="text-gray-700 dark:text-gray-300 mb-4">
-        {event.description}
-      </p>
-      <div className="text-sm text-gray-500 dark:text-gray-400">
-        <p>
-          Aika: {event.date} {event.time}
-        </p>
-        <p>Sijainti: {event.location}</p>
-      </div>
-    </div>
+    value.startsWith('http://') ||
+    value.startsWith('https://') ||
+    value.startsWith('/testImages')
   );
 };
 
-export default EventCard;
+export default function EventCard({ event }: { event: Event }) {
+  // Look up category metadata (name, color, ink) — null if the event has no category
+  const cat = event.category ? CATEGORY_BY_KEY[event.category] : null;
+
+  return (
+    // The whole card is a link — no nested <button> or <a> inside, which avoids
+    // invalid HTML (interactive elements shouldn't be nested).
+    // group enables child elements to react to the card's hover state via group-hover:
+    <Link
+      href={`/${event.id}`}
+      className="group block bg-surface rounded-card border border-border shadow-(--shadow-card) overflow-hidden transition-shadow hover:shadow-(--shadow-card-hover)"
+    >
+      {/* Image area — tinted with the category color when no photo is present */}
+      <div
+        className="aspect-4/3 w-full relative"
+        style={{ background: cat?.color ?? 'var(--color-surface-soft)' }}
+      >
+        {isValidUrl(event.imgUrl) ? (
+          <img
+            src={event.imgUrl}
+            alt={event.title}
+            className="w-full h-full object-cover"
+          />
+        ) : event.imgUrl ? (
+          <Illustration
+            id={event.imgUrl as IllustrationId}
+            className="w-full h-full"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center font-display text-5xl font-bold opacity-30">
+            {event.title.charAt(0)}
+          </div>
+        )}
+
+        {/* Category badge — positioned over the image, top-left */}
+        {cat && (
+          <span
+            className="absolute top-3 left-3 rounded-pill px-3 py-1 text-xs font-bold"
+            style={{ background: cat.color, color: cat.ink }}
+          >
+            {cat.name}
+          </span>
+        )}
+
+        {/* "Ilmainen" badge — only shown when price is exactly 0, not when undefined */}
+        {event.price === 0 && (
+          <span className="absolute top-3 right-3 rounded-pill bg-accent text-accent-ink px-3 py-1 text-xs font-bold">
+            Ilmainen
+          </span>
+        )}
+      </div>
+
+      <div className="p-5">
+        <h3 className="font-display text-lg font-bold text-ink leading-tight mb-2">
+          {event.title}
+        </h3>
+
+        {/* Date · city (or venue if city is missing) */}
+        <div className="flex items-center gap-2 text-sm text-ink-soft mb-3">
+          <span>{formatDate(event.date)}</span>
+          <span>·</span>
+          <span>{event.city ?? event.location}</span>
+        </div>
+
+        <div className="flex items-center justify-between">
+          {/* ?? '–' gives a dash when age is not set, keeping the row balanced */}
+          <span className="text-xs text-ink-soft">Ikä {event.age ?? '–'}</span>
+          <span className="text-sm font-semibold text-ink">
+            {event.price === 0
+              ? 'Ilmainen'
+              : event.price != null
+                ? `${event.price} €`
+                : ''}
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
+}

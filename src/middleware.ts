@@ -12,5 +12,7 @@ export default withAuth({
 // Without it, the session check would run on every single request (including
 // static files, API routes, etc.) which would be wasteful.
 export const config = {
-  matcher: ['/create-event'],
+  // :path* matches any single path segment followed by any sub-path,
+  // so /123/edit is protected but / and /123 (detail page) are not.
+  matcher: ['/create-event', '/:path*/edit', '/dashboard', '/admin'],
 };

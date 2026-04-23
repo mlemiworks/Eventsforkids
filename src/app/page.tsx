@@ -1,26 +1,13 @@
-// No 'use client' here — this is a server component. Next.js renders it on the
-// server so we can call async functions (like fetchEvents) directly at the top
-// level, without needing useEffect or a loading state in component code.
-import EventCard from '../components/eventCard';
+// No 'use client' here — this stays a server component so the initial fetch
+// runs on the server and the HTML arrives pre-rendered. The interactive
+// filtering/pagination is pushed down into HomeBrowser (a client component).
 import type { Event } from '../types/types';
 import { fetchEvents } from '../lib/dataFetching';
+import HomeBrowser from '../components/home-browser';
 
 export default async function Home() {
   const events: Event[] = await fetchEvents();
-
-  return (
-    <div className="flex min-h-screen items-top justify-center bg-zinc-50 font-sans dark:bg-black">
-      {events.length === 0 ? (
-        <p className="text-gray-700 dark:text-gray-300">
-          Ei saatavilla olevia tapahtumia.
-        </p>
-      ) : (
-        <div className="h-full grid gap-6 sm:grid-cols-2 lg:grid-cols-3 p-4 sm:p-6 lg:p-8">
-          {events.map((event: Event) => (
-            <EventCard key={event.id} event={event} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
+  // Pass the full event list to HomeBrowser; filtering happens client-side
+  // so there's no round-trip to the server when the user changes filters.
+  return <HomeBrowser events={events} />;
 }

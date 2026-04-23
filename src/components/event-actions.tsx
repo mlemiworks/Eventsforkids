@@ -1,8 +1,10 @@
 'use client';
 // useSession reads the current auth state from browser-side React context,
 // which is why this must be a client component rather than a server component.
+import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { Button } from './ui/Button';
 
 type Props = {
   eventId: number;
@@ -14,34 +16,33 @@ export default function EventActions({ eventId, createdBy }: Props) {
   const router = useRouter();
 
   // Render nothing if the user isn't logged in or isn't the event creator.
-  // This hides the buttons entirely rather than showing them disabled,
-  // since other users have no reason to interact with them.
+  // Hiding buttons entirely is cleaner than showing disabled ones to non-owners.
   if (!session?.user?.email || session.user.email !== createdBy) return null;
 
   const handleDelete = async () => {
     if (!confirm('Haluatko varmasti poistaa tämän tapahtuman?')) return;
     const res = await fetch(`/api/events/${eventId}`, { method: 'DELETE' });
-    // Navigate home after deletion so the user doesn't land on a 404 page
+    // Navigate home after deletion so the user doesn't land on a 404
     if (res.ok) router.push('/');
   };
 
   return (
-    <div className="flex gap-3 mt-8">
-      {/* Edit is intentionally disabled — the feature is planned but not built yet.
-          Keeping the button visible makes it easy to wire up later without
-          redesigning the layout. */}
-      <button
-        disabled
-        className="px-4 py-2 text-sm text-gray-400 border border-gray-200 rounded dark:text-gray-600 dark:border-gray-700 cursor-not-allowed"
+    <div className="flex gap-3">
+      {/*
+        Link styled to look like Button variant="secondary". We can't use the Button
+        component directly here because it renders a <button>, not an <a>, and nesting
+        an <a> inside a <button> is invalid HTML. The classes are copied from Button's
+        secondary variant + md size.
+      */}
+      <Link
+        href={`/${eventId}/edit`}
+        className="rounded-full font-semibold transition-colors bg-surface-soft text-ink hover:bg-border px-4 py-2 text-base"
       >
         Muokkaa
-      </button>
-      <button
-        onClick={handleDelete}
-        className="px-4 py-2 text-sm text-red-600 border border-red-300 rounded hover:bg-red-50 dark:text-red-400 dark:border-red-700 dark:hover:bg-red-950"
-      >
+      </Link>
+      <Button variant="danger" size="md" onClick={handleDelete}>
         Poista
-      </button>
+      </Button>
     </div>
   );
 }

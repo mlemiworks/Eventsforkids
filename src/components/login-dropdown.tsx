@@ -1,14 +1,16 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { useSession, signIn, signOut } from 'next-auth/react';
+import { Input } from './ui/Input';
+import { Button } from './ui/Button';
 
-// open/onToggle/onClose are controlled by the Header so that other nav elements
-// (like "Luo tapahtuma") can open this dropdown from outside it.
+// open/onToggle/onClose are controlled by Header so that auth-gated nav links
+// can open this dropdown from outside the component.
 type Props = {
   open: boolean;
   onToggle: () => void;
   onClose: () => void;
-  message?: string; // optional prompt shown at the top of the dropdown
+  message?: string; // optional prompt shown when triggered by a protected nav link
 };
 
 export default function LoginDropdown({ open, onToggle, onClose, message }: Props) {
@@ -18,9 +20,8 @@ export default function LoginDropdown({ open, onToggle, onClose, message }: Prop
   const [error, setError] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Close the dropdown when the user clicks anywhere outside the container.
-  // We attach the listener only while open to avoid unnecessary work,
-  // and the cleanup function (the return value) removes it when it's no longer needed.
+  // Close the dropdown when the user clicks outside the container.
+  // The effect is registered only while open to avoid pointless listeners.
   useEffect(() => {
     if (!open) return;
     const handleClickOutside = (e: MouseEvent) => {
@@ -36,7 +37,7 @@ export default function LoginDropdown({ open, onToggle, onClose, message }: Prop
     e.preventDefault();
     setError('');
     // redirect: false prevents NextAuth from doing a full page redirect on
-    // success — we handle the result ourselves and close the dropdown instead
+    // success — we handle the result ourselves and close the dropdown instead.
     const result = await signIn('credentials', { email, password, redirect: false });
     if (result?.error) {
       setError('Väärä sähköposti tai salasana');
@@ -51,64 +52,68 @@ export default function LoginDropdown({ open, onToggle, onClose, message }: Prop
 
   if (status === 'authenticated') {
     return (
-      <div className="flex items-center gap-4">
-        <span className="text-sm text-gray-600 dark:text-gray-400">
+      <div className="flex items-center gap-3">
+        <span className="text-sm text-primary-ink/70 font-medium">
           {session.user?.email}
         </span>
-        <button
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => signOut({ redirect: false })}
-          className="text-gray-700 dark:text-gray-300 hover:underline"
+          // text-primary-ink so it stays legible on the green header background
+          className="text-primary-ink hover:bg-primary-ink/10"
         >
           Kirjaudu ulos
-        </button>
+        </Button>
       </div>
     );
   }
 
   return (
-    // ref covers the button + panel so clicks on either don't trigger onClose
+    // ref covers both the trigger button and the panel so clicks on either
+    // side don't fire the outside-click handler
     <div className="relative" ref={containerRef}>
-      <button
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={onToggle}
-        className="text-gray-700 dark:text-gray-300 hover:underline"
+        className="text-primary-ink hover:bg-primary-ink/10"
       >
         Kirjaudu
-      </button>
+      </Button>
+
       {open && (
-        <div className="absolute right-0 top-8 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded shadow-lg p-4 w-64 z-10">
+        <div className="absolute right-0 top-10 bg-surface border border-border rounded-xl shadow-(--shadow-card-hover) p-5 w-72 z-50">
           {message && (
-            <p className="text-sm text-gray-700 dark:text-gray-300 mb-3 pb-3 border-b border-gray-200 dark:border-gray-700">
+            <p className="text-sm text-ink mb-4 pb-4 border-b border-border">
               {message}
             </p>
           )}
+
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-            <input
+            <Input
               type="email"
               placeholder="Sähköposti"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="border border-gray-300 dark:border-gray-600 rounded px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
             />
-            <input
+            <Input
               type="password"
               placeholder="Salasana"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="border border-gray-300 dark:border-gray-600 rounded px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
             />
-            {error && <p className="text-red-500 text-xs">{error}</p>}
-            <button
-              type="submit"
-              className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded px-3 py-1.5 text-sm hover:opacity-80"
-            >
+            {error && <p className="text-red-600 text-xs">{error}</p>}
+            <Button type="submit" variant="primary" size="md" className="w-full">
               Kirjaudu sisään
-            </button>
+            </Button>
           </form>
-          <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+
+          <p className="mt-4 text-xs text-ink-soft">
             Ei tiliä?{' '}
-            <a href="/register" className="underline hover:opacity-70">
+            <a href="/register" className="text-ink underline hover:opacity-70">
               Rekisteröidy
             </a>
           </p>

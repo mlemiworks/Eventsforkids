@@ -65,3 +65,18 @@ export const deleteEvent = async (id: number): Promise<boolean> => {
   await writeFile(DB_PATH, JSON.stringify(db, null, 2), 'utf-8');
   return true;
 };
+
+// Partial<Omit<Event, 'id' | 'createdBy'>> means "any subset of Event fields,
+// but not id (immutable) or createdBy (ownership must not change on edit)".
+export const updateEvent = async (
+  id: number,
+  fields: Partial<Omit<Event, 'id' | 'createdBy'>>,
+): Promise<Event | null> => {
+  const db = await readDb();
+  const index = db.events.findIndex((e) => e.id === id);
+  if (index === -1) return null;
+  // Spread existing event first so any field not included in `fields` is preserved
+  db.events[index] = { ...db.events[index], ...fields };
+  await writeFile(DB_PATH, JSON.stringify(db, null, 2), 'utf-8');
+  return db.events[index];
+};

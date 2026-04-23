@@ -1,7 +1,4 @@
 'use client';
-// This is a client component because it owns interactive state (filters, page).
-// It receives the full event list from the server component above so the initial
-// HTML is still pre-rendered — only state changes happen in the browser.
 import { useMemo, useState } from 'react';
 import type { Event, Category } from '../types/types';
 import EventCard from './eventCard';
@@ -10,111 +7,142 @@ import { CATEGORIES, CITIES } from '../lib/categories';
 const PAGE_SIZE = 9;
 
 export default function HomeBrowser({ events }: { events: Event[] }) {
-  const [q, setQ]       = useState('');
+  const [q, setQ] = useState('');
   const [city, setCity] = useState('');
-  // '' means "all categories"; Category is the union type from types.ts
-  const [cat, setCat]   = useState<Category | ''>('');
+  const [cat, setCat] = useState<Category | ''>('');
   const [page, setPage] = useState(1);
 
-  // useMemo re-computes only when the dependency values actually change —
-  // without it, filtering would run on every render (e.g. on unrelated state updates).
-  const filtered = useMemo(() => {
-    return events.filter((e) => {
-      if (cat  && e.category !== cat)  return false;
-      if (city && e.city     !== city) return false;
-      if (q) {
-        const haystack = `${e.title} ${e.description}`.toLowerCase();
-        if (!haystack.includes(q.toLowerCase())) return false;
-      }
-      return true;
-    });
-  }, [events, q, city, cat]);
+  const filtered = useMemo(
+    () =>
+      events.filter((e) => {
+        if (cat && e.category !== cat) return false;
+        if (city && e.city !== city) return false;
+        if (
+          q &&
+          !`${e.title} ${e.description}`.toLowerCase().includes(q.toLowerCase())
+        )
+          return false;
+        return true;
+      }),
+    [events, q, city, cat],
+  );
 
-  // Math.max keeps pages at least 1 so the pagination bar always renders cleanly
-  const pages     = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-
-  // Helper so every filter change also resets to page 1
-  const filter = (fn: () => void) => { fn(); setPage(1); };
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10">
-
-      {/* Hero */}
-      <div className="mb-10">
-        <h1 className="font-display text-5xl font-bold text-ink mb-3">
-          Löydä tapahtumia lapsille
-        </h1>
-        <p className="text-ink-soft text-lg max-w-2xl">
-          Kaikki lapsille sopivat tapahtumat yhdestä paikasta.
-        </p>
+      {/* HERO + SEARCH ROW — card-style wrapper */}
+      <div
+        style={{
+          background: 'rgb(255, 255, 255)',
+          borderRadius: '28px',
+          border: '1px solid rgb(221, 229, 217)',
+          boxShadow: 'rgba(40, 60, 50, 0.1) 0px 6px 24px',
+          padding: '28px 32px',
+          marginBottom: '28px',
+          display: 'flex',
+          gap: '24px',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+        }}
+      >
+        <div className="flex-[1_1_320px]">
+          <h1 className="font-display text-4xl md:text-5xl font-bold text-ink leading-[1.05] tracking-tight">
+            Lapsille, perheille,
+            <br />
+            joka viikolle.
+          </h1>
+          <p className="text-ink-soft mt-3 max-w-md">
+            Selaa lähialueesi lasten tapahtumia — musiikkia, sirkusta,
+            askartelua, liikuntaa.
+          </p>
+        </div>
+        <div className="flex gap-2 flex-[2_1_420px] min-w-[300px]">
+          <div className="relative flex-[2]">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-soft">
+              🔍
+            </span>
+            <input
+              value={q}
+              onChange={(e) => {
+                setQ(e.target.value);
+                setPage(1);
+              }}
+              placeholder="Etsi nimellä, paikalla..."
+              className="w-full rounded-xl border border-border bg-surface px-4 py-3 pl-10 placeholder:text-ink-soft focus:outline-none focus:border-primary"
+            />
+          </div>
+          <select
+            value={city}
+            onChange={(e) => {
+              setCity(e.target.value);
+              setPage(1);
+            }}
+            className="flex-1 rounded-xl border border-border bg-surface px-4 py-3 text-ink focus:outline-none focus:border-primary cursor-pointer"
+          >
+            <option value="">Kaikki kaupungit</option>
+            {CITIES.map((c) => (
+              <option key={c}>{c}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      {/* Search + city row */}
-      <div className="flex flex-wrap gap-3 mb-6">
-        {/*
-          Plain <input> (not the Input primitive) so flex-1 controls width freely
-          without fighting the w-full that the primitive bakes in.
-        */}
-        <input
-          value={q}
-          onChange={(e) => filter(() => setQ(e.target.value))}
-          placeholder="Etsi tapahtumia..."
-          className="flex-1 min-w-60 rounded-xl border border-border bg-surface px-4 py-3 text-ink placeholder:text-ink-soft focus:outline-none focus:border-primary"
-        />
-        <select
-          value={city}
-          onChange={(e) => filter(() => setCity(e.target.value))}
-          className="rounded-xl border border-border bg-surface px-4 py-3 text-ink focus:outline-none focus:border-primary"
-        >
-          <option value="">Kaikki kaupungit</option>
-          {CITIES.map((c) => (
-            <option key={c}>{c}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* Category pills */}
+      {/* CATEGORY CHIPS */}
       <div className="flex flex-wrap gap-2 mb-8">
+        {/* "Kaikki" is selected when no category filter is active */}
         <button
-          onClick={() => filter(() => setCat(''))}
-          className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-            cat === '' ? 'bg-ink text-bg' : 'bg-surface-soft text-ink hover:bg-border'
+          onClick={() => {
+            setCat('');
+            setPage(1);
+          }}
+          className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors border ${
+            cat === ''
+              ? 'bg-ink text-bg border-ink'
+              : 'bg-white text-ink border-border hover:bg-surface-soft'
           }`}
         >
           Kaikki
         </button>
         {CATEGORIES.map((c) => (
-          // Toggle: clicking the active category deselects it
           <button
             key={c.key}
-            onClick={() => filter(() => setCat(c.key === cat ? '' : c.key))}
+            onClick={() => {
+              setCat(c.key === cat ? '' : c.key);
+              setPage(1);
+            }}
+            // Only apply category color when this chip is selected;
+            // unselected chips get a plain white look via className
             className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
               cat === c.key
-                ? 'ring-2 ring-ink ring-offset-2 ring-offset-bg'
-                : ''
+                ? ''
+                : 'bg-white text-ink border border-border hover:bg-surface-soft'
             }`}
-            style={{ background: c.color, color: c.ink }}
+            style={
+              cat === c.key ? { background: c.color, color: c.ink } : undefined
+            }
           >
             {c.name}
           </button>
         ))}
       </div>
 
-      {/* Grid / empty state */}
+      {/* RESULTS */}
       {filtered.length === 0 ? (
-        <p className="text-ink-soft py-20 text-center">
-          Ei tapahtumia hakuehdoilla.
-        </p>
+        <div className="rounded-2xl border border-border bg-surface p-16 text-center">
+          <div className="font-display text-2xl text-ink mb-2">Ei tuloksia</div>
+          <div className="text-ink-soft">
+            Kokeile toista hakusanaa tai tyhjennä suodattimet.
+          </div>
+        </div>
       ) : (
         <>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
             {pageItems.map((e) => (
               <EventCard key={e.id} event={e} />
             ))}
           </div>
-
-          {/* Pagination — only rendered when there's more than one page */}
           {pages > 1 && (
             <div className="flex justify-center gap-2 mt-10">
               {Array.from({ length: pages }).map((_, i) => (

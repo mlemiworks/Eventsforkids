@@ -13,7 +13,12 @@ type Props = {
   message?: string; // optional prompt shown when triggered by a protected nav link
 };
 
-export default function LoginDropdown({ open, onToggle, onClose, message }: Props) {
+export default function LoginDropdown({
+  open,
+  onToggle,
+  onClose,
+  message,
+}: Props) {
   const { data: session, status } = useSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -25,7 +30,10 @@ export default function LoginDropdown({ open, onToggle, onClose, message }: Prop
   useEffect(() => {
     if (!open) return;
     const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
         onClose();
       }
     };
@@ -38,7 +46,11 @@ export default function LoginDropdown({ open, onToggle, onClose, message }: Prop
     setError('');
     // redirect: false prevents NextAuth from doing a full page redirect on
     // success — we handle the result ourselves and close the dropdown instead.
-    const result = await signIn('credentials', { email, password, redirect: false });
+    const result = await signIn('credentials', {
+      email,
+      password,
+      redirect: false,
+    });
     if (result?.error) {
       setError('Väärä sähköposti tai salasana');
     } else {
@@ -73,14 +85,14 @@ export default function LoginDropdown({ open, onToggle, onClose, message }: Prop
     // ref covers both the trigger button and the panel so clicks on either
     // side don't fire the outside-click handler
     <div className="relative" ref={containerRef}>
-      <Button
-        variant="ghost"
-        size="sm"
+      {/* Custom button instead of the generic Button component — needs a specific
+          blue pill shape that doesn't match any existing variant */}
+      <button
         onClick={onToggle}
-        className="text-primary-ink hover:bg-primary-ink/10"
+        className="px-[14px] py-[8px] rounded-[18px] text-[15px] font-bold cursor-pointer border border-[rgb(158,197,232)] bg-[rgb(158,197,232)] text-[rgb(15,48,80)] transition-transform hover:brightness-105"
       >
         Kirjaudu
-      </Button>
+      </button>
 
       {open && (
         <div className="absolute right-0 top-10 bg-surface border border-border rounded-xl shadow-(--shadow-card-hover) p-5 w-72 z-50">
@@ -106,7 +118,12 @@ export default function LoginDropdown({ open, onToggle, onClose, message }: Prop
               required
             />
             {error && <p className="text-red-600 text-xs">{error}</p>}
-            <Button type="submit" variant="primary" size="md" className="w-full">
+            <Button
+              type="submit"
+              variant="primary"
+              size="md"
+              className="w-full"
+            >
               Kirjaudu sisään
             </Button>
           </form>

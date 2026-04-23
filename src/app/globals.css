@@ -8,7 +8,7 @@
 */
 @theme inline {
   /* Meadow palette */
-  --color-bg: #f5f7f3;
+  --color-bg: #e8efe6;
   --color-surface: #ffffff;
   --color-surface-soft: #e8efe6;
   --color-ink: #1d2a22;
@@ -50,6 +50,9 @@ body {
   background: var(--color-bg);
   color: var(--color-ink);
   font-family: var(--font-sans);
+  /* Always reserve the scrollbar gutter so layout width never changes when the
+     scrollbar appears or disappears (e.g. switching between category filters). */
+  scrollbar-gutter: stable;
 }
 
 /* Headings use the display (serif) font with tight letter-spacing */

@@ -33,15 +33,21 @@ export default function EventCard({ event }: { event: Event }) {
       className="group block bg-surface rounded-card border border-border shadow-(--shadow-card) overflow-hidden transition-shadow hover:shadow-(--shadow-card-hover)"
     >
       {/* Image area — tinted with the category color when no photo is present */}
+      {/*
+        overflow-hidden clips the absolutely-positioned image to the box.
+        The img is absolute so it never contributes to this div's height;
+        height comes solely from aspect-4/3, keeping cards consistent
+        regardless of the photo's natural proportions (portrait vs landscape).
+      */}
       <div
-        className="aspect-4/3 w-full relative"
+        className="aspect-4/3 w-full relative overflow-hidden"
         style={{ background: cat?.color ?? 'var(--color-surface-soft)' }}
       >
         {isValidUrl(event.imgUrl) ? (
           <img
             src={event.imgUrl}
             alt={event.title}
-            className="w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover"
           />
         ) : event.imgUrl ? (
           <Illustration

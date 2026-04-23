@@ -4,14 +4,14 @@
 // feels smooth rather than jarring.
 export default function Loading() {
   return (
-    <div className="flex min-h-screen items-top justify-center bg-zinc-50 dark:bg-black">
+    <div className="flex min-h-screen items-top justify-center bg-zinc-50">
       <div className="h-full grid gap-6 sm:grid-cols-2 lg:grid-cols-3 p-4 sm:p-6 lg:p-8">
         {/* Array.from creates an array of N empty slots so we can map over it —
             there's no built-in way to loop N times in JSX without an array */}
         {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}
-            className="animate-pulse rounded-lg overflow-hidden bg-gray-200 dark:bg-zinc-800 w-72 h-64"
+            className="animate-pulse rounded-lg overflow-hidden bg-gray-200 w-72 h-64"
           />
         ))}
       </div>

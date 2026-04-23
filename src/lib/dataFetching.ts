@@ -37,7 +37,10 @@ export const createUser = async (email: string, passwordHash: string): Promise<U
   const db = await readDb();
   // Take one more than the current max so IDs stay unique even after deletions
   const id = db.users.length > 0 ? Math.max(...db.users.map((u) => u.id)) + 1 : 1;
-  const newUser: User = { id, email, passwordHash };
+  // New registrations always get role 'user' — admin is assigned manually in the DB.
+  // new Date().toISOString() produces "2026-04-23T12:00:00.000Z" — the standard
+  // format for storing timestamps in JSON (no timezone ambiguity).
+  const newUser: User = { id, email, passwordHash, role: 'user', createdAt: new Date().toISOString() };
   db.users.push(newUser);
   await writeFile(DB_PATH, JSON.stringify(db, null, 2), 'utf-8');
   return newUser;

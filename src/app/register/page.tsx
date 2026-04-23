@@ -47,12 +47,12 @@ export default function RegisterPage() {
   return (
     <div className="flex justify-center py-16 px-4">
       <div className="w-full max-w-sm">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-8">
           Rekisteröidy
         </h2>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <label htmlFor="email" className="text-sm text-gray-700 dark:text-gray-300">
+            <label htmlFor="email" className="text-sm text-gray-700">
               Sähköposti
             </label>
             <input
@@ -61,11 +61,11 @@ export default function RegisterPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="border border-gray-300 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              className="border border-gray-300 rounded px-3 py-2 bg-white text-gray-900"
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label htmlFor="password" className="text-sm text-gray-700 dark:text-gray-300">
+            <label htmlFor="password" className="text-sm text-gray-700">
               Salasana
             </label>
             <input
@@ -75,11 +75,11 @@ export default function RegisterPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={8}
-              className="border border-gray-300 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              className="border border-gray-300 rounded px-3 py-2 bg-white text-gray-900"
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label htmlFor="confirm" className="text-sm text-gray-700 dark:text-gray-300">
+            <label htmlFor="confirm" className="text-sm text-gray-700">
               Vahvista salasana
             </label>
             <input
@@ -88,19 +88,19 @@ export default function RegisterPage() {
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
               required
-              className="border border-gray-300 dark:border-gray-600 rounded px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              className="border border-gray-300 rounded px-3 py-2 bg-white text-gray-900"
             />
           </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}
           <button
             type="submit"
             disabled={loading}
-            className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded px-4 py-2 hover:opacity-80 disabled:opacity-50"
+            className="bg-gray-900 text-white rounded px-4 py-2 hover:opacity-80 disabled:opacity-50"
           >
             {loading ? 'Rekisteröidään...' : 'Rekisteröidy'}
           </button>
         </form>
-        <p className="mt-6 text-sm text-gray-600 dark:text-gray-400">
+        <p className="mt-6 text-sm text-gray-600">
           Onko sinulla jo tili?{' '}
           <a href="/" className="underline hover:opacity-70">
             Kirjaudu etusivulla

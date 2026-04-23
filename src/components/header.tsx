@@ -9,13 +9,39 @@ import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import LoginDropdown from './login-dropdown';
 
-// NAV drives the link list. authRequired: true means the link shows for everyone
-// but redirects unauthenticated users to the login dropdown instead of navigating.
-const NAV = [
-  { href: '/',             label: 'Etusivu',       authRequired: false },
-  { href: '/create-event', label: 'Luo tapahtuma', authRequired: true  },
-  { href: '/dashboard',    label: 'Omat',          authRequired: true  },
+// TypeScript type for NAV items.
+// variant controls which color scheme the link uses.
+// authOnly: true means the link is hidden entirely when not authenticated.
+// authRequired: true means clicking opens the login dropdown when not authenticated.
+type NavItem = {
+  href: string;
+  label: string;
+  authRequired: boolean;
+  authOnly: boolean;
+  variant: 'default' | 'create' | 'auth';
+};
+
+const NAV: NavItem[] = [
+  { href: '/',             label: 'Etusivu',       authRequired: false, authOnly: false, variant: 'default' },
+  { href: '/create-event', label: 'Luo tapahtuma', authRequired: true,  authOnly: false, variant: 'create'  },
+  // Omat is hidden from guests — showing it to unauthenticated users would be confusing
+  { href: '/dashboard',    label: 'Omat',          authRequired: true,  authOnly: true,  variant: 'auth'    },
 ];
+
+// Shared base classes for all nav links: pill shape, consistent padding and font size
+const LINK_BASE = 'px-[18px] py-[9px] rounded-full text-[15px] font-bold transition-colors';
+
+// Returns the full className for a nav link based on its variant and active state.
+// Any active link gets a solid white background regardless of variant.
+function getLinkClass(variant: NavItem['variant'], active: boolean): string {
+  if (active) return `${LINK_BASE} bg-white text-[rgb(29,42,34)]`;
+  if (variant === 'create') {
+    // Salmon/orange for "Luo tapahtuma" — visually separates it as a call-to-action
+    return `${LINK_BASE} bg-[rgb(232,159,122)] text-[rgb(26,58,36)]`;
+  }
+  // 'default' and 'auth' variants: translucent white blends with the green header
+  return `${LINK_BASE} bg-[rgba(255,255,255,0.35)] text-[rgb(26,58,36)]`;
+}
 
 export default function Header() {
   const { status, data: session } = useSession();
@@ -41,13 +67,39 @@ export default function Header() {
   return (
     <header className="w-full bg-primary border-b border-primary-ink/10">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        {/* font-display applies Fraunces via the CSS var set in layout.tsx */}
-        <Link href="/" className="font-display text-2xl font-bold text-primary-ink">
-          Lasten tapahtumat
+
+        {/* Logo: decorative badge + two-line italic wordmark */}
+        <Link href="/" className="flex items-center gap-3">
+          {/* Yellow circle with a smaller blue dot inside, tilted for a playful feel */}
+          <div
+            className="w-11 h-11 rounded-full bg-[rgb(242,199,92)] grid place-items-center shrink-0"
+            style={{ transform: 'rotate(-8deg)' }}
+          >
+            <div className="w-5 h-5 rounded-full bg-[rgb(158,197,232)]" />
+          </div>
+          {/* Two-line wordmark: tight leading so the lines sit close together */}
+          <div>
+            <div
+              className="font-display text-[26px] font-bold text-primary-ink leading-none italic"
+              style={{ letterSpacing: '-0.5px' }}
+            >
+              Lasten
+            </div>
+            <div
+              className="font-display text-[26px] font-bold text-primary-ink leading-none mt-0.5 italic"
+              style={{ letterSpacing: '-0.5px' }}
+            >
+              Tapahtumat
+            </div>
+          </div>
         </Link>
 
-        <nav className="flex items-center gap-2">
+        {/* gap-5 = 20px, which is 2.5× the original 8px (a 150% increase) */}
+        <nav className="flex items-center gap-5">
           {NAV.map((item) => {
+            // authOnly items are hidden entirely when the user is not logged in
+            if (item.authOnly && status !== 'authenticated') return null;
+
             const active = pathname === item.href;
             const requiresAuth = item.authRequired && status !== 'authenticated';
 
@@ -57,18 +109,14 @@ export default function Header() {
                 href={item.href}
                 onClick={(e) => {
                   // Block navigation for auth-required items when not logged in,
-                  // then open the dropdown with an explanatory message instead.
+                  // then open the login dropdown with an explanatory message instead.
                   if (requiresAuth) {
                     e.preventDefault();
                     setLoginMessage('Kirjaudu sisään jatkaaksesi.');
                     setLoginOpen(true);
                   }
                 }}
-                className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
-                  active
-                    ? 'bg-primary-ink text-primary'
-                    : 'text-primary-ink hover:bg-primary-ink/10'
-                }`}
+                className={getLinkClass(item.variant, active)}
               >
                 {item.label}
               </Link>
@@ -79,11 +127,7 @@ export default function Header() {
           {isAdmin && (
             <Link
               href="/admin"
-              className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
-                pathname === '/admin'
-                  ? 'bg-primary-ink text-primary'
-                  : 'text-primary-ink hover:bg-primary-ink/10'
-              }`}
+              className={getLinkClass('auth', pathname === '/admin')}
             >
               Hallinta
             </Link>

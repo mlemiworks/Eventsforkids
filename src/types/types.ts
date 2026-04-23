@@ -35,4 +35,9 @@ export interface User {
   id: number;
   email: string;
   passwordHash: string; // we never store the plain-text password, only the bcrypt hash
+  username?: string; // optional display name — separate from the login email
+  // 'user' | 'admin' is a TypeScript union: only these two exact strings are valid.
+  // This mirrors the role column you'd find in a real DB users table.
+  role: 'user' | 'admin';
+  createdAt: string; // ISO 8601 timestamp, e.g. "2025-01-01T00:00:00.000Z"
 }

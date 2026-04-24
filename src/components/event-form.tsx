@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
-import type { Event } from '../types/types';
+// Event now comes from Prisma (via dataFetching), not the old manual types.ts definition
+import type { Event } from '@/src/lib/dataFetching';
 import { CATEGORIES, CITIES } from '../lib/categories';
 import { Input } from './ui/Input';
 import { Select } from './ui/Select';
@@ -37,18 +38,23 @@ const EMPTY: FormFields = {
 };
 
 // Converts an existing Event to the string-based FormFields shape for pre-filling the edit form.
+// Prisma returns nullable fields as string | null; FormFields uses plain strings,
+// so we ?? '' to convert null → empty string.
 export function eventToFormFields(event: Event): FormFields {
+  // age is not yet in the generated Prisma client — cast so the type compiles
+  // before the migration is run. Remove the cast after running the migration.
+  const e = event as Event & { age?: string | null };
   return {
-    title: event.title,
-    category: event.category ?? '',
-    city: event.city ?? '',
-    date: event.date,
-    time: event.time,
-    price: event.price != null ? String(event.price) : '',
-    age: event.age ?? '',
-    location: event.location,
-    description: event.description,
-    imgUrl: event.imgUrl,
+    title: e.title,
+    category: e.category ?? '',
+    city: e.city ?? '',
+    date: e.date,
+    time: e.time ?? '',          // time is string | null in Prisma
+    price: e.price != null ? String(e.price) : '',
+    age: e.age ?? '',
+    location: e.location,
+    description: e.description ?? '',   // description is string | null in Prisma
+    imgUrl: e.imgUrl,
   };
 }
 

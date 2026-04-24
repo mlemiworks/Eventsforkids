@@ -1,85 +1,95 @@
-import { Event, User } from '../types/types';
-import { readFile, writeFile } from 'fs/promises';
-import path from 'path';
+// This is the single place in the app that talks to the database.
+// All other files import from here — none of them use Prisma directly.
+// Swapping the database later only requires changing this file.
+import prisma from './prisma';
 
-// path.join + process.cwd() builds an absolute path that works regardless of
-// where the Node process was started from. Files in public/ are readable by
-// server-side Node code but are NOT served over HTTP by Next.js — only static
-// assets (images, etc.) placed there intentionally are exposed to the browser.
-const DB_PATH = path.join(process.cwd(), 'public', 'db.json');
+// Re-export the Prisma-generated types so the rest of the app can import
+// Event and User from here, just like they did before.
+// 'export type' is TypeScript syntax — it makes clear we're only exporting
+// a type definition, not a runtime value.
+export type { Event, User } from '../generated/prisma';
 
-// Private helper so every exported function reads from one place.
-// : Promise<...> is TypeScript saying this async function returns a promise
-// that resolves to an object with those two arrays.
-async function readDb(): Promise<{ events: Event[]; users: User[] }> {
-  const raw = await readFile(DB_PATH, 'utf-8');
-  return JSON.parse(raw) as { events: Event[]; users: User[] };
-}
-
-export const fetchEvents = async (): Promise<Event[]> => {
-  const db = await readDb();
-  return db.events;
+// Fetch all events, newest first
+export const fetchEvents = async () => {
+  return prisma.event.findMany({
+    orderBy: { createdAt: 'desc' },
+  });
 };
 
-export const fetchEventById = async (id: number): Promise<Event | null> => {
-  const events = await fetchEvents();
-  // ?? null converts undefined (what find() returns on no match) to an explicit
-  // null, which is more predictable to check against in calling code
-  return events.find((e) => e.id === id) ?? null;
+// Fetch a single event by its ID. Returns null if not found.
+// Note: id is now a string (cuid), not a number.
+export const fetchEventById = async (id: string) => {
+  return prisma.event.findUnique({
+    where: { id },
+  });
 };
 
-export const findUserByEmail = async (email: string): Promise<User | null> => {
-  const db = await readDb();
-  return db.users.find((u) => u.email === email) ?? null;
+export const findUserByEmail = async (email: string) => {
+  return prisma.user.findUnique({
+    where: { email },
+  });
 };
 
-export const createUser = async (email: string, passwordHash: string): Promise<User> => {
-  const db = await readDb();
-  // Take one more than the current max so IDs stay unique even after deletions
-  const id = db.users.length > 0 ? Math.max(...db.users.map((u) => u.id)) + 1 : 1;
-  // New registrations always get role 'user' — admin is assigned manually in the DB.
-  // new Date().toISOString() produces "2026-04-23T12:00:00.000Z" — the standard
-  // format for storing timestamps in JSON (no timezone ambiguity).
-  const newUser: User = { id, email, passwordHash, role: 'user', createdAt: new Date().toISOString() };
-  db.users.push(newUser);
-  await writeFile(DB_PATH, JSON.stringify(db, null, 2), 'utf-8');
-  return newUser;
+// createUser now takes email and password hash as separate arguments,
+// matching how the register route calls it.
+export const createUser = async (email: string, password: string) => {
+  return prisma.user.create({
+    data: { email, password },
+  });
 };
 
-// Omit<Event, 'id'> is a TypeScript utility type meaning "the Event type but
-// without the id field" — the caller doesn't supply an id, we generate it here.
-export const createEvent = async (
-  fields: Omit<Event, 'id'>,
-): Promise<Event> => {
-  const db = await readDb();
-  const id = db.events.length > 0 ? Math.max(...db.events.map((e) => e.id)) + 1 : 1;
-  const newEvent: Event = { id, ...fields };
-  db.events.push(newEvent);
-  await writeFile(DB_PATH, JSON.stringify(db, null, 2), 'utf-8');
-  return newEvent;
+// Omit the auto-generated fields — the caller supplies everything else.
+// The Prisma-generated Event type includes id and createdAt which we exclude here.
+export const createEvent = async (fields: {
+  title: string;
+  date: string;
+  time?: string | null;
+  location: string;
+  city: string;
+  category: string;
+  imgUrl: string;
+  age?: string | null;
+  description?: string | null;
+  price?: string | null;
+  createdBy?: string | null;
+}) => {
+  return prisma.event.create({ data: fields });
 };
 
-export const deleteEvent = async (id: number): Promise<boolean> => {
-  const db = await readDb();
-  const index = db.events.findIndex((e) => e.id === id);
-  if (index === -1) return false;
-  // splice mutates the array in place, removing exactly 1 element at `index`
-  db.events.splice(index, 1);
-  await writeFile(DB_PATH, JSON.stringify(db, null, 2), 'utf-8');
-  return true;
+export const deleteEvent = async (id: string): Promise<boolean> => {
+  try {
+    await prisma.event.delete({ where: { id } });
+    return true;
+  } catch {
+    // Prisma throws if the record doesn't exist — we catch and return false
+    // to match the original function's behaviour
+    return false;
+  }
 };
 
-// Partial<Omit<Event, 'id' | 'createdBy'>> means "any subset of Event fields,
-// but not id (immutable) or createdBy (ownership must not change on edit)".
 export const updateEvent = async (
-  id: number,
-  fields: Partial<Omit<Event, 'id' | 'createdBy'>>,
-): Promise<Event | null> => {
-  const db = await readDb();
-  const index = db.events.findIndex((e) => e.id === id);
-  if (index === -1) return null;
-  // Spread existing event first so any field not included in `fields` is preserved
-  db.events[index] = { ...db.events[index], ...fields };
-  await writeFile(DB_PATH, JSON.stringify(db, null, 2), 'utf-8');
-  return db.events[index];
+  id: string,
+  // Partial means all fields are optional — only send what changed
+  fields: Partial<{
+    title: string;
+    date: string;
+    time: string | null;
+    location: string;
+    description: string | null;
+    imgUrl: string;
+    category: string;
+    city: string;
+    age: string | null;
+    price: string | null;
+  }>,
+) => {
+  try {
+    return await prisma.event.update({
+      where: { id },
+      data: fields,
+    });
+  } catch {
+    // Prisma throws P2025 if record not found — return null to match original
+    return null;
+  }
 };

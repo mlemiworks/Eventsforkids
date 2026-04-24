@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+  // Tell Prisma where to generate the client code.
+  // This puts it at src/generated/prisma/ inside your project.
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  date        String
+  time        String?
+  location    String
+  city        String
+  category    String
+  imgUrl      String
+  age         String?
+  price       String?
+  createdBy   String?
+  createdAt   DateTime @default(now())
+
+  user        User?    @relation(fields: [createdBy], references: [email])
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+
+  events    Event[]
+}

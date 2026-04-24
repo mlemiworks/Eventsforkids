@@ -9,6 +9,7 @@ import {
   Illustration,
   IllustrationId,
 } from '@/src/components/ui/Illustrations';
+import { Category } from '@/src/types/types';
 
 // Full Finnish long-form date: "lauantai 19. huhtikuuta 2025"
 function formatDate(iso: string) {
@@ -35,7 +36,7 @@ export default async function EventPage({
   params: Promise<{ event: string }>;
 }) {
   const { event: idStr } = await params;
-  const event = await fetchEventById(parseInt(idStr, 10));
+  const event = await fetchEventById(idStr);
 
   if (!event) {
     return (
@@ -49,7 +50,9 @@ export default async function EventPage({
   }
 
   // Look up category metadata for the tinted image backdrop and badge
-  const cat = event.category ? CATEGORY_BY_KEY[event.category] : null;
+  const cat = event.category
+    ? CATEGORY_BY_KEY[event.category as Category]
+    : null;
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
@@ -102,11 +105,6 @@ export default async function EventPage({
                 {cat.name}
               </span>
             )}
-            {event.age && (
-              <span className="rounded-pill bg-surface-soft text-ink px-3 py-1 text-sm font-semibold">
-                Ikä {event.age}
-              </span>
-            )}
           </div>
 
           <h1 className="font-display text-4xl font-bold text-ink mb-4 leading-tight">
@@ -140,7 +138,7 @@ export default async function EventPage({
             <InfoRow
               label="Hinta"
               value={
-                event.price === 0
+                event.price === '0' || event.price === 'Vapaa pääsy'
                   ? 'Ilmainen'
                   : event.price != null
                     ? `${event.price} €`
@@ -151,7 +149,10 @@ export default async function EventPage({
           </div>
 
           {/* Delete / edit — only rendered for the event creator */}
-          <EventActions eventId={event.id} createdBy={event.createdBy} />
+          <EventActions
+            eventId={event.id}
+            createdBy={event.createdBy}
+          />
         </aside>
       </div>
     </div>

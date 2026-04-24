@@ -2,12 +2,15 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import type { Event } from '@/src/types/types';
+import type { Event } from '@/src/lib/dataFetching';
 import { CATEGORY_BY_KEY } from '@/src/lib/categories';
+import { Category } from '@/src/types/types';
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('fi-FI', {
-    day: 'numeric', month: 'numeric', year: 'numeric',
+    day: 'numeric',
+    month: 'numeric',
+    year: 'numeric',
   });
 }
 
@@ -25,7 +28,8 @@ export default function AdminClient({ events }: { events: Event[] }) {
     );
   }, [events, q]);
 
-  const handleDelete = async (id: number, title: string) => {
+  // id is a cuid string — do not wrap in Number()
+  const handleDelete = async (id: string, title: string) => {
     if (!confirm(`Poistetaanko tapahtuma "${title}"?`)) return;
     const res = await fetch(`/api/events/${id}`, { method: 'DELETE' });
     // router.refresh() tells Next.js to re-run the server component above,
@@ -70,9 +74,14 @@ export default function AdminClient({ events }: { events: Event[] }) {
               </tr>
             ) : (
               filtered.map((e) => {
-                const cat = e.category ? CATEGORY_BY_KEY[e.category] : null;
+                const cat = e.category
+                  ? CATEGORY_BY_KEY[e.category as Category]
+                  : null;
                 return (
-                  <tr key={e.id} className="border-b border-border last:border-0 hover:bg-surface-soft/50">
+                  <tr
+                    key={e.id}
+                    className="border-b border-border last:border-0 hover:bg-surface-soft/50"
+                  >
                     <td className="px-4 py-3 font-medium text-ink max-w-[200px] truncate">
                       {e.title}
                     </td>
@@ -95,7 +104,7 @@ export default function AdminClient({ events }: { events: Event[] }) {
                       {e.city ?? e.location ?? '—'}
                     </td>
                     <td className="px-4 py-3 text-ink-soft whitespace-nowrap">
-                      {e.price === 0
+                      {e.price === '0'
                         ? 'Ilmainen'
                         : e.price != null
                           ? `${e.price} €`

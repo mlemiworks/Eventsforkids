@@ -45,23 +45,21 @@ export async function POST(request: NextRequest) {
     ? (body.category as Category)
     : undefined;
 
-  // price arrives as a string ("0", "8.5", ""); convert to number or leave undefined
-  const priceNum = body.price !== '' && body.price != null
-    ? Number(body.price)
-    : undefined;
-
   const event = await createEvent({
     title:       title.trim(),
     date:        date.trim(),
-    time:        body.time?.trim() ?? '',
+    time:        body.time?.trim() || null,
     location:    body.location?.trim() ?? '',
-    description: body.description?.trim() ?? '',
+    description: body.description?.trim() || null,
     // || because we also want the placeholder when imgUrl is an empty string
     imgUrl:      body.imgUrl?.trim() || PLACEHOLDER_IMAGE,
-    category,
-    city:        body.city?.trim() || undefined,
-    age:         body.age?.trim()  || undefined,
-    price:       priceNum,
+    // category is validated above; default to '' if user skipped it
+    category:    category ?? '',
+    // city and age are optional in the form; store null when absent
+    city:        body.city?.trim() ?? '',
+    age:         body.age?.trim() || null,
+    // price stays as a string — the DB stores it as String, not a number
+    price:       body.price?.trim() || null,
     createdBy:   session.user.email,
   });
 

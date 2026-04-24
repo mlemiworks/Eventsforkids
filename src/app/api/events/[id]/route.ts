@@ -1,25 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/src/lib/auth';
-import { fetchEventById, deleteEvent, updateEvent } from '@/src/lib/dataFetching';
+import {
+  fetchEventById,
+  deleteEvent,
+  updateEvent,
+} from '@/src/lib/dataFetching';
 import { CATEGORIES } from '@/src/lib/categories';
-import type { Category } from '@/src/types/types';
-// Import the admin email constant so it lives in one place
 import { ADMIN_EMAIL } from '@/src/app/admin/page';
 
 // Shared auth + ownership guard used by both DELETE and PUT
 async function resolveEvent(params: Promise<{ id: string }>) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.email) return { error: 'Kirjautuminen vaaditaan', status: 401 } as const;
+  if (!session?.user?.email) {
+    return { error: 'Kirjautuminen vaaditaan', status: 401 } as const;
+  }
 
   const { id } = await params;
-  const event = await fetchEventById(parseInt(id, 10));
-  if (!event) return { error: 'Tapahtumaa ei löydy', status: 404 } as const;
 
-  // Admin can modify any event; regular users only their own
+  // id is now a plain string (cuid) — no parseInt needed
+  const event = await fetchEventById(id);
+  if (!event) {
+    return { error: 'Tapahtumaa ei löydy', status: 404 } as const;
+  }
+
   const isAdmin = session.user.email === ADMIN_EMAIL;
   if (!isAdmin && event.createdBy !== session.user.email) {
-    return { error: 'Ei oikeutta muokata tätä tapahtumaa', status: 403 } as const;
+    return {
+      error: 'Ei oikeutta muokata tätä tapahtumaa',
+      status: 403,
+    } as const;
   }
 
   return { event, email: session.user.email };
@@ -30,10 +40,13 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const result = await resolveEvent(params);
-  // TypeScript narrows the union: 'error' in result tells TS which branch we're in
   if ('error' in result) {
-    return NextResponse.json({ error: result.error }, { status: result.status });
+    return NextResponse.json(
+      { error: result.error },
+      { status: result.status },
+    );
   }
+
   await deleteEvent(result.event.id);
   return NextResponse.json({ success: true });
 }
@@ -44,7 +57,10 @@ export async function PUT(
 ) {
   const result = await resolveEvent(params);
   if ('error' in result) {
-    return NextResponse.json({ error: result.error }, { status: result.status });
+    return NextResponse.json(
+      { error: result.error },
+      { status: result.status },
+    );
   }
 
   const body = (await request.json()) as {
@@ -67,26 +83,28 @@ export async function PUT(
     );
   }
 
-  const validKeys: string[] = CATEGORIES.map((c) => c.key);
-  const category: Category | undefined = validKeys.includes(body.category ?? '')
-    ? (body.category as Category)
+  // 'as string[]' widens the type from Category[] to string[] so that
+  // includes() accepts body.category which is typed as string | undefined
+  const validKeys = CATEGORIES.map((c) => c.key) as string[];
+  const category = validKeys.includes(body.category ?? '')
+    ? body.category
     : undefined;
 
-  const priceNum = body.price !== '' && body.price != null
-    ? Number(body.price)
-    : undefined;
+  // price is stored as a string in Prisma (e.g. "5€" or "Vapaa pääsy").
+  // We pass it through as-is, or null if empty.
+  const price = body.price?.trim() || null;
 
   const updated = await updateEvent(result.event.id, {
-    title:       body.title.trim(),
-    date:        body.date.trim(),
-    time:        body.time?.trim() ?? '',
-    location:    body.location?.trim() ?? '',
-    description: body.description?.trim() ?? '',
-    imgUrl:      body.imgUrl?.trim() || result.event.imgUrl,
+    title: body.title.trim(),
+    date: body.date.trim(),
+    time: body.time?.trim() ?? null,
+    location: body.location?.trim() ?? '',
+    description: body.description?.trim() ?? null,
+    imgUrl: body.imgUrl?.trim() || result.event.imgUrl,
     category,
-    city:        body.city?.trim()  || undefined,
-    age:         body.age?.trim()   || undefined,
-    price:       priceNum,
+    city: body.city?.trim() || undefined,
+    age: body.age?.trim() || null,
+    price,
   });
 
   return NextResponse.json({ id: updated?.id });

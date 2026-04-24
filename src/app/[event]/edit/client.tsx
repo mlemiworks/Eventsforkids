@@ -2,8 +2,11 @@
 // Owns the PUT fetch and navigation after save.
 // Receives the pre-fetched event from the server page above so no useEffect needed.
 import { useRouter } from 'next/navigation';
-import type { Event } from '@/src/types/types';
-import EventForm, { eventToFormFields, type FormFields } from '@/src/components/event-form';
+import type { Event } from '@/src/lib/dataFetching';
+import EventForm, {
+  eventToFormFields,
+  type FormFields,
+} from '@/src/components/event-form';
 
 export default function EditEventClient({ event }: { event: Event }) {
   const router = useRouter();

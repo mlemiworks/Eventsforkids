@@ -10,7 +10,7 @@ export default async function EditEventPage({
   params: Promise<{ event: string }>;
 }) {
   const { event: idStr } = await params;
-  const event = await fetchEventById(parseInt(idStr, 10));
+  const event = await fetchEventById(idStr);
 
   // If the event doesn't exist, send the user home rather than showing an error page
   if (!event) redirect('/');

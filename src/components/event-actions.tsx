@@ -7,8 +7,9 @@ import { useRouter } from 'next/navigation';
 import { Button } from './ui/Button';
 
 type Props = {
-  eventId: number;
-  createdBy?: string;
+  // IDs are now cuid strings from Prisma, not numbers
+  eventId: string;
+  createdBy?: string | null;
 };
 
 export default function EventActions({ eventId, createdBy }: Props) {

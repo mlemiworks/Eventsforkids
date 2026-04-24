@@ -9,14 +9,14 @@ export async function POST(request: NextRequest) {
   if (!email || !password) {
     return NextResponse.json(
       { error: 'Sähköposti ja salasana vaaditaan' },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   if (password.length < 8) {
     return NextResponse.json(
       { error: 'Salasanan tulee olla vähintään 8 merkkiä' },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -24,13 +24,14 @@ export async function POST(request: NextRequest) {
   if (existing) {
     return NextResponse.json(
       { error: 'Sähköposti on jo käytössä' },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
-  // 10 salt rounds is the bcrypt default — high enough to be slow for attackers
-  // brute-forcing hashes, low enough that a single registration feels instant
   const passwordHash = await bcrypt.hash(password, 10);
+
+  // createUser previously took (email, passwordHash) — same signature, but
+  // now it writes to Postgres instead of db.json
   await createUser(email, passwordHash);
 
   return NextResponse.json({ success: true });

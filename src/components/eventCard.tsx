@@ -1,7 +1,8 @@
 import Link from 'next/link';
-import type { Event } from '../types/types';
+import type { Event } from '@/src/lib/dataFetching';
 import { CATEGORY_BY_KEY } from '../lib/categories';
 import { Illustration, type IllustrationId } from './ui/Illustrations';
+import { Category } from '../types/types';
 
 // toLocaleDateString with 'fi-FI' locale formats as "15. huhtikuuta" (Finnish long form)
 function formatDate(iso: string) {
@@ -20,9 +21,15 @@ const isValidUrl = (value?: string) => {
   );
 };
 
-export default function EventCard({ event }: { event: Event }) {
+export default function EventCard({ event: _event }: { event: Event }) {
+  // age is not yet in the generated Prisma client — cast so the type compiles
+  // before the migration is run. Remove the cast after running the migration.
+  const event = _event as Event & { age?: string | null };
+
   // Look up category metadata (name, color, ink) — null if the event has no category
-  const cat = event.category ? CATEGORY_BY_KEY[event.category] : null;
+  const cat = event.category
+    ? CATEGORY_BY_KEY[event.category as Category]
+    : null;
 
   return (
     // The whole card is a link — no nested <button> or <a> inside, which avoids
@@ -71,7 +78,7 @@ export default function EventCard({ event }: { event: Event }) {
         )}
 
         {/* "Ilmainen" badge — only shown when price is exactly 0, not when undefined */}
-        {event.price === 0 && (
+        {event.price === '0' && (
           <span className="absolute top-3 right-3 rounded-pill bg-accent text-accent-ink px-3 py-1 text-xs font-bold">
             Ilmainen
           </span>
@@ -94,7 +101,7 @@ export default function EventCard({ event }: { event: Event }) {
           {/* ?? '–' gives a dash when age is not set, keeping the row balanced */}
           <span className="text-xs text-ink-soft">Ikä {event.age ?? '–'}</span>
           <span className="text-sm font-semibold text-ink">
-            {event.price === 0
+            {event.price === '0'
               ? 'Ilmainen'
               : event.price != null
                 ? `${event.price} €`

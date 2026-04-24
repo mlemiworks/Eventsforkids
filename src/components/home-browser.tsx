@@ -1,6 +1,7 @@
 'use client';
 import { useMemo, useState } from 'react';
-import type { Event, Category } from '../types/types';
+import type { Category } from '../types/types';
+import type { Event } from '../lib/dataFetching';
 import EventCard from './eventCard';
 import { CATEGORIES, CITIES } from '../lib/categories';
 
@@ -51,7 +52,7 @@ export default function HomeBrowser({ events }: { events: Event[] }) {
             joka viikolle.
           </h1>
           <p className="text-ink-soft mt-3 max-w-md">
-            Selaa lähialueesi lasten tapahtumia — musiikkia, sirkusta,
+            Selaa lähialueesi lasten tapahtumia — musiikkia, leikkiä,
             askartelua, liikuntaa.
           </p>
         </div>

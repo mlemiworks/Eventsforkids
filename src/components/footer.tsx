@@ -15,6 +15,17 @@ const Footer = () => {
           <div className="opacity-90">Sähköposti: hei@lastentapahtumat.fi</div>
           <div className="opacity-90">Instagram @lastentapahtumat</div>
         </div>
+        {/* Privacy notice — brief disclosure of what data is stored, why, and for how long */}
+        <div className="text-sm leading-relaxed max-w-sm opacity-80">
+          <div className="font-bold mb-1">Tietosuoja</div>
+          <p>
+            Rekisteröityessäsi tallennamme sähköpostiosoitteesi ja salatun
+            salasanasi tunnistautumista varten sekä luomasi tapahtumat. Tietoja
+            ei luovuteta kolmansille osapuolille. Säilytämme tietojasi niin
+            kauan kuin tilisi on aktiivinen — voit pyytää tietojesi poistamista
+            milloin tahansa osoitteesta hei@lastentapahtumat.fi.
+          </p>
+        </div>
       </div>
     </footer>
   );

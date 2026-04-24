@@ -92,6 +92,12 @@ export default function RegisterPage() {
             />
           </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}
+          {/* Remind the user what they're consenting to before they submit */}
+          <p className="text-xs text-gray-500 leading-relaxed">
+            Rekisteröitymällä hyväksyt, että tallennamme sähköpostiosoitteesi,
+            salatun salasanasi ja luomasi tapahtumat palvelun käyttämistä varten.
+            Lisätietoja löydät sivun alaosan tietosuojaosiosta.
+          </p>
           <button
             type="submit"
             disabled={loading}

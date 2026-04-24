@@ -33,6 +33,11 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# Legacy seed data — contains user emails + password hashes, must not be served publicly
+# or committed to git. Kept locally in dev-data/ for reference only.
+public/db.json
+dev-data/
+
 # vercel
 .vercel
 

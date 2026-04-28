@@ -3,20 +3,27 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/src/lib/auth';
 import { createClient } from '@supabase/supabase-js';
 
-// Build the Supabase admin client once at module load time.
-// createClient here uses the service role key, which has full storage access
-// and bypasses Row Level Security — it must never reach the browser.
-// NEXT_PUBLIC_ prefix on the URL is intentional: the URL is public info,
-// but the service role key env var has no NEXT_PUBLIC_ prefix so Next.js
-// strips it from client bundles automatically.
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-);
-
 const BUCKET = 'event-images';
 // 5 MB is generous for event banner images while keeping storage costs low
 const MAX_SIZE_BYTES = 5 * 1024 * 1024;
+
+// Called inside the handler so env vars are only read at request time, not at
+// build time. Next.js evaluates module top-level code during the build, which
+// throws "supabaseUrl is required" when env vars aren't present in CI/build.
+function getSupabaseClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!url || !key) {
+    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
+  }
+
+  // Service role key bypasses Row Level Security — has full storage access.
+  // NEXT_PUBLIC_ prefix on the URL is intentional: the URL is public info,
+  // but the service role key has no NEXT_PUBLIC_ prefix so Next.js strips it
+  // from client bundles automatically.
+  return createClient(url, key);
+}
 
 export async function POST(request: NextRequest) {
   // Only logged-in users can upload — same rule as creating events
@@ -58,6 +65,8 @@ export async function POST(request: NextRequest) {
   // ArrayBuffer is what Supabase's upload() expects when running in a Node
   // environment — it cannot consume a Web API File/Blob directly in all runtimes
   const arrayBuffer = await file.arrayBuffer();
+
+  const supabase = getSupabaseClient();
 
   const { error: uploadError } = await supabase.storage
     .from(BUCKET)

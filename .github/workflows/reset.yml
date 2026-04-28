@@ -1,0 +1,12 @@
+name: Reset demo database
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # every 6 hours
+  workflow_dispatch:  # this allows you to trigger it manually from GitHub's UI
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call reset endpoint
+        run: curl -X POST ${{ secrets.APP_URL }}/api/reset -H "x-reset-token: ${{ secrets.RESET_TOKEN }}"

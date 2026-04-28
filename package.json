@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:prod": "npx dotenv-cli -e .env.production.local -- next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
@@ -12,6 +13,7 @@
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "bcryptjs": "^3.0.3",
+    "dotenv-cli": "^11.0.0",
     "next": "16.0.8",
     "next-auth": "^4.24.14",
     "pg": "^8.20.0",

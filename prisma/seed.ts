@@ -157,20 +157,6 @@ async function main() {
       price: '0',
       imgUrl: 'liikunta',
     },
-    {
-      title: 'Nokkahuili konsertti',
-      description: 'Jee musaa!',
-      category: 'musiikki',
-      city: 'Tampere',
-      location: 'Haihara',
-      date: '2026-04-24',
-      time: '12:00',
-      age: '3-5',
-      price: null,
-      imgUrl: 'music',
-      // This event was created by a user — link it to the test account
-      createdBy: 'testi@example.com',
-    },
   ];
 
   for (const event of events) {

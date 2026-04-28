@@ -46,3 +46,6 @@ dev-data/
 next-env.d.ts
 
 /src/generated/
+
+playwright-report/
+test-results/

@@ -258,12 +258,15 @@ export function IllustrationPicker({
 }: {
   // string instead of IllustrationId so callers can pass a plain form field
   // string without a cast — the comparison `value === item.id` still works.
+  // Also accepts http/https URLs from the upload tab so that switching tabs
+  // doesn't clear a previously selected illustration.
   value?: string;
-  onChange: (id: IllustrationId) => void;
+  onChange: (val: string) => void;
   className?: string;
 }) {
   return (
     <div
+      data-testid="illustration-picker"
       className={`grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-3 ${className}`}
     >
       {illustrations.map((item) => {
@@ -273,6 +276,7 @@ export function IllustrationPicker({
           <button
             key={item.id}
             type="button"
+            data-testid={`illustration-option-${item.id}`}
             onClick={() => onChange(item.id)}
             className={`
               rounded-lg border-2 p-2 text-center transition
@@ -280,7 +284,7 @@ export function IllustrationPicker({
               hover:scale-[1.03]
             `}
           >
-            <div className="aspect-[4/3] w-full">
+            <div className="aspect-4/3 w-full">
               <Illustration id={item.id} />
             </div>
 

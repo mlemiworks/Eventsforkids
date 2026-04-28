@@ -8,6 +8,7 @@ import { Select } from './ui/Select';
 import { Textarea } from './ui/Textarea';
 import { Button } from './ui/Button';
 import { IllustrationPicker } from './ui/Illustrations';
+import { ImageUploader } from './ui/ImageUploader';
 
 // All form values are kept as strings because HTML inputs always return strings.
 // The caller's onSubmit receives this shape and converts price → number before the API call.
@@ -71,6 +72,17 @@ export default function EventForm({
   const [fields, setFields] = useState<FormFields>({ ...EMPTY, ...initial });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Determine the starting tab from the existing imgUrl.
+  // If the event already has a real image URL (https://...) we open on "Oma kuva"
+  // so the user sees their image straight away when editing.
+  // useState with an initializer function (lazy init) avoids recomputing on every render.
+  const [imageTab, setImageTab] = useState<'illustrations' | 'upload'>(() => {
+    const url = initial?.imgUrl ?? '';
+    return url.startsWith('http://') || url.startsWith('https://')
+      ? 'upload'
+      : 'illustrations';
+  });
 
   // Generic field updater — avoids a separate useState + handler for every field.
   // The union event type is intentionally wide so it's compatible with Input,
@@ -194,13 +206,60 @@ export default function EventForm({
         />
       </Field>
 
+      {/* Image picker — two tabs: pre-made illustrations or own uploaded photo */}
       <Field label="Valitse kuvitus">
-        <IllustrationPicker
-          value={fields.imgUrl}
-          // setFields directly — avoids constructing a fake React.ChangeEvent
-          // that `set()` would expect but TypeScript would reject.
-          onChange={(val) => setFields((prev) => ({ ...prev, imgUrl: val }))}
-        />
+        {/* Tab bar — plain buttons styled as pills, matching the design tokens */}
+        <div className="flex gap-2 mb-3" role="tablist" data-testid="image-tab-bar">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={imageTab === 'illustrations'}
+            data-testid="image-tab-illustrations"
+            onClick={() => setImageTab('illustrations')}
+            // bg-primary on the active tab; ghost style on the inactive one
+            className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors ${
+              imageTab === 'illustrations'
+                ? 'bg-primary text-primary-ink'
+                : 'text-ink-soft hover:bg-surface-soft'
+            }`}
+          >
+            Kuvitukset
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={imageTab === 'upload'}
+            data-testid="image-tab-upload"
+            onClick={() => setImageTab('upload')}
+            className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors ${
+              imageTab === 'upload'
+                ? 'bg-primary text-primary-ink'
+                : 'text-ink-soft hover:bg-surface-soft'
+            }`}
+          >
+            Oma kuva
+          </button>
+        </div>
+
+        {imageTab === 'illustrations' ? (
+          <IllustrationPicker
+            value={fields.imgUrl}
+            // setFields directly — avoids constructing a fake React.ChangeEvent
+            // that `set()` would expect but TypeScript would reject.
+            onChange={(val) => setFields((prev) => ({ ...prev, imgUrl: val }))}
+          />
+        ) : (
+          <ImageUploader
+            // Pass the current imgUrl only when it is a real https:// URL.
+            // An illustration ID would break the <img> src, so we omit it.
+            currentUrl={
+              fields.imgUrl.startsWith('https://') || fields.imgUrl.startsWith('http://')
+                ? fields.imgUrl
+                : undefined
+            }
+            onUpload={(url) => setFields((prev) => ({ ...prev, imgUrl: url }))}
+          />
+        )}
       </Field>
 
       {error && <p className="text-red-600 text-sm">{error}</p>}

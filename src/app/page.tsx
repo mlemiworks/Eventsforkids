@@ -4,6 +4,10 @@
 import { fetchEvents } from '../lib/dataFetching';
 import HomeBrowser from '../components/home-browser';
 
+// Tell Next.js to never cache this page — always fetch fresh data
+// This is needed because new events can be added at any time
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   const events = await fetchEvents();
   // Pass the full event list to HomeBrowser; filtering happens client-side

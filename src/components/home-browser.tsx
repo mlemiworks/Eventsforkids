@@ -8,11 +8,14 @@ import { CATEGORIES, CITIES } from '../lib/categories';
 const PAGE_SIZE = 9;
 
 export default function HomeBrowser({ events }: { events: Event[] }) {
-  const [q, setQ] = useState('');
+  const [q, setQ] = useState(''); // search query
   const [city, setCity] = useState('');
   const [cat, setCat] = useState<Category | ''>('');
   const [page, setPage] = useState(1);
 
+  // what is usememo and how does it work:
+  // Recalculate the filtered event list only when events, q, city, or cat change.
+  // Not when user does something unrelated like switch page or hover over a card.
   const filtered = useMemo(
     () =>
       events.filter((e) => {

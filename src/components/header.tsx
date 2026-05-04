@@ -22,25 +22,49 @@ type NavItem = {
 };
 
 const NAV: NavItem[] = [
-  { href: '/',             label: 'Etusivu',       authRequired: false, authOnly: false, variant: 'default' },
-  { href: '/create-event', label: 'Luo tapahtuma', authRequired: true,  authOnly: false, variant: 'create'  },
+  {
+    href: '/',
+    label: 'Etusivu',
+    authRequired: false,
+    authOnly: false,
+    variant: 'default',
+  },
+  {
+    href: '/create-event',
+    label: 'Luo tapahtuma',
+    authRequired: true,
+    authOnly: false,
+    variant: 'create',
+  },
   // Omat is hidden from guests — showing it to unauthenticated users would be confusing
-  { href: '/dashboard',    label: 'Omat',          authRequired: true,  authOnly: true,  variant: 'auth'    },
+  {
+    href: '/dashboard',
+    label: 'Omat',
+    authRequired: true,
+    authOnly: true,
+    variant: 'auth',
+  },
 ];
 
 // Shared base classes for all nav links: pill shape, consistent padding and font size
-const LINK_BASE = 'px-[18px] py-[9px] rounded-full text-[15px] font-bold transition-colors';
+const LINK_BASE =
+  'px-[18px] py-[9px] rounded-full text-[15px] font-bold transition-colors';
 
 // Returns the full className for a nav link based on its variant and active state.
 // Any active link gets a solid white background regardless of variant.
-function getLinkClass(variant: NavItem['variant'], active: boolean): string {
-  if (active) return `${LINK_BASE} bg-white text-[rgb(29,42,34)]`;
+function getLinkClass(
+  variant: NavItem['variant'],
+  active: boolean,
+  fullWidth = false,
+): string {
+  const width = fullWidth ? ' w-full text-center block' : '';
+  if (active) return `${LINK_BASE} bg-white text-[rgb(29,42,34)]${width}`;
   if (variant === 'create') {
     // Salmon/orange for "Luo tapahtuma" — visually separates it as a call-to-action
-    return `${LINK_BASE} bg-[rgb(232,159,122)] text-[rgb(26,58,36)]`;
+    return `${LINK_BASE} bg-[rgb(232,159,122)] text-[rgb(26,58,36)]${width}`;
   }
   // 'default' and 'auth' variants: translucent white blends with the green header
-  return `${LINK_BASE} bg-[rgba(255,255,255,0.35)] text-[rgb(26,58,36)]`;
+  return `${LINK_BASE} bg-[rgba(255,255,255,0.35)] text-[rgb(26,58,36)]${width}`;
 }
 
 export default function Header() {
@@ -48,6 +72,7 @@ export default function Header() {
   const pathname = usePathname();
   const [loginOpen, setLoginOpen] = useState(false);
   const [loginMessage, setLoginMessage] = useState('');
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   // Simple email-based admin check — a proper role field on User would be cleaner
   // but this is enough until the admin route is built out.
@@ -64,10 +89,11 @@ export default function Header() {
     setLoginMessage('');
   };
 
+  const closeMobile = () => setMobileOpen(false);
+
   return (
     <header className="w-full bg-primary border-b border-primary-ink/10">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-
         {/* Logo: decorative badge + two-line italic wordmark */}
         <Link href="/" className="flex items-center gap-3">
           {/* Yellow circle with a smaller blue dot inside, tilted for a playful feel */}
@@ -94,22 +120,18 @@ export default function Header() {
           </div>
         </Link>
 
-        {/* gap-5 = 20px, which is 2.5× the original 8px (a 150% increase) */}
-        <nav className="flex items-center gap-5">
+        {/* Desktop nav — hidden below the md breakpoint */}
+        <nav className="hidden md:flex items-center gap-5">
           {NAV.map((item) => {
-            // authOnly items are hidden entirely when the user is not logged in
             if (item.authOnly && status !== 'authenticated') return null;
-
             const active = pathname === item.href;
-            const requiresAuth = item.authRequired && status !== 'authenticated';
-
+            const requiresAuth =
+              item.authRequired && status !== 'authenticated';
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={(e) => {
-                  // Block navigation for auth-required items when not logged in,
-                  // then open the login dropdown with an explanatory message instead.
                   if (requiresAuth) {
                     e.preventDefault();
                     setLoginMessage('Kirjaudu sisään jatkaaksesi.');
@@ -123,7 +145,6 @@ export default function Header() {
             );
           })}
 
-          {/* Admin link is only rendered when the session email matches */}
           {isAdmin && (
             <Link
               href="/admin"
@@ -142,7 +163,78 @@ export default function Header() {
             message={loginMessage}
           />
         </nav>
+
+        {/* Hamburger button — visible only below the md breakpoint.
+            The three bars animate into an X when the menu is open. */}
+        <button
+          className="md:hidden flex flex-col justify-center gap-1.25 w-10 h-10 rounded-lg bg-[rgba(255,255,255,0.35)] px-2.5"
+          onClick={() => setMobileOpen((v) => !v)}
+          aria-label={mobileOpen ? 'Sulje valikko' : 'Avaa valikko'}
+          aria-expanded={mobileOpen}
+        >
+          {/* Each span is one bar. On open: top rotates +45°, middle fades, bottom rotates −45°.
+              translate-y values are the distance between bar centers (1px + 5px gap + 1px = 7px). */}
+          <span
+            className={`block h-0.5 w-full bg-[rgb(26,58,36)] transition-transform origin-center duration-200 ${mobileOpen ? 'rotate-45 translate-y-1.75' : ''}`}
+          />
+          <span
+            className={`block h-0.5 w-full bg-[rgb(26,58,36)] transition-opacity duration-200 ${mobileOpen ? 'opacity-0' : ''}`}
+          />
+          <span
+            className={`block h-0.5 w-full bg-[rgb(26,58,36)] transition-transform origin-center duration-200 ${mobileOpen ? '-rotate-45 -translate-y-1.75' : ''}`}
+          />
+        </button>
       </div>
+
+      {/* Mobile menu panel — slides in below the header bar when hamburger is open.
+          Only rendered in the DOM when open, so it collapses fully when closed. */}
+      {mobileOpen && (
+        <nav className="md:hidden border-t border-primary-ink/10 px-6 py-4 flex flex-col gap-3">
+          {NAV.map((item) => {
+            if (item.authOnly && status !== 'authenticated') return null;
+            const active = pathname === item.href;
+            const requiresAuth =
+              item.authRequired && status !== 'authenticated';
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={(e) => {
+                  if (requiresAuth) {
+                    e.preventDefault();
+                    setLoginMessage('Kirjaudu sisään jatkaaksesi.');
+                    setLoginOpen(true);
+                  }
+                  closeMobile();
+                }}
+                className={getLinkClass(item.variant, active, true)}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
+
+          {isAdmin && (
+            <Link
+              href="/admin"
+              onClick={closeMobile}
+              className={getLinkClass('auth', pathname === '/admin', true)}
+            >
+              Hallinta
+            </Link>
+          )}
+
+          <div className="mt-1">
+            <LoginDropdown
+              open={loginOpen}
+              onToggle={handleToggleLogin}
+              onClose={handleCloseLogin}
+              message={loginMessage}
+              fullWidth
+            />
+          </div>
+        </nav>
+      )}
     </header>
   );
 }

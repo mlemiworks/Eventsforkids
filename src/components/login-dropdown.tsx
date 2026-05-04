@@ -11,6 +11,7 @@ type Props = {
   onToggle: () => void;
   onClose: () => void;
   message?: string; // optional prompt shown when triggered by a protected nav link
+  fullWidth?: boolean; // true in the mobile menu so the button fills the row like other nav items
 };
 
 export default function LoginDropdown({
@@ -18,6 +19,7 @@ export default function LoginDropdown({
   onToggle,
   onClose,
   message,
+  fullWidth = false,
 }: Props) {
   const { data: session, status } = useSession();
   const [email, setEmail] = useState('');
@@ -64,7 +66,7 @@ export default function LoginDropdown({
 
   if (status === 'authenticated') {
     return (
-      <div className="flex items-center gap-3">
+      <div className={`flex items-center gap-3${fullWidth ? ' w-full justify-between' : ''}`}>
         <span className="text-sm text-primary-ink/70 font-medium">
           {session.user?.email}
         </span>
@@ -84,12 +86,12 @@ export default function LoginDropdown({
   return (
     // ref covers both the trigger button and the panel so clicks on either
     // side don't fire the outside-click handler
-    <div className="relative" ref={containerRef}>
+    <div className={`relative${fullWidth ? ' w-full' : ''}`} ref={containerRef}>
       {/* Custom button instead of the generic Button component — needs a specific
           blue pill shape that doesn't match any existing variant */}
       <button
         onClick={onToggle}
-        className="px-[14px] py-[8px] rounded-[18px] text-[15px] font-bold cursor-pointer border border-[rgb(158,197,232)] bg-[rgb(158,197,232)] text-[rgb(15,48,80)] transition-transform hover:brightness-105"
+        className={`px-3.5 py-2 rounded-[18px] text-[15px] font-bold cursor-pointer border border-[rgb(158,197,232)] bg-[rgb(158,197,232)] text-[rgb(15,48,80)] transition-transform hover:brightness-105${fullWidth ? ' w-full' : ''}`}
       >
         Kirjaudu
       </button>

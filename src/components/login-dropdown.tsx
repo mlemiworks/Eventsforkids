@@ -46,7 +46,15 @@ export default function LoginDropdown({
     }
   };
 
-  if (status === 'loading') return null;
+  if (status === 'loading') {
+    return (
+      <div
+        className={`px-3.5 py-2 rounded-[18px] text-[15px] font-bold cursor-pointer border border-[rgb(158,197,232)] bg-[rgb(158,197,232)] text-[rgb(15,48,80)] opacity-40${fullWidth ? ' w-full' : ''}`}
+      >
+        Kirjaudu
+      </div>
+    );
+  }
 
   if (status === 'authenticated') {
     return (

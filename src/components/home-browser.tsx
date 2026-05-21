@@ -84,7 +84,9 @@ export default function HomeBrowser({ events }: { events: Event[] }) {
           >
             <option value="">Kaikki kaupungit</option>
             {CITIES.map((c) => (
-              <option key={c}>{c}</option>
+              <option key={c.name} value={c.name}>
+                {c.name}
+              </option>
             ))}
           </select>
         </div>

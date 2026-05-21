@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/src/lib/prisma';
 
+function daysFromNow(n: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() + n);
+  return d.toISOString().split('T')[0];
+}
+
 const RESET_TOKEN = process.env.RESET_TOKEN;
 
 export async function POST(request: NextRequest) {
@@ -41,7 +47,7 @@ export async function POST(request: NextRequest) {
         category: 'taide',
         city: 'Helsinki',
         location: 'Kasvomaalausverstas, Hakaniemi',
-        date: '2026-03-15',
+        date: daysFromNow(3),
         time: '10:00 - 13:00',
         age: '3–10 v',
         price: '5',
@@ -54,7 +60,7 @@ export async function POST(request: NextRequest) {
         category: 'teatteri',
         city: 'Espoo',
         location: 'Espoon pääkirjasto',
-        date: '2026-04-05',
+        date: daysFromNow(7),
         time: '14:00 - 15:00',
         age: '2–6 v',
         price: '0',
@@ -67,7 +73,7 @@ export async function POST(request: NextRequest) {
         category: 'teatteri',
         city: 'Tampere',
         location: 'Tampereen Teatteri',
-        date: '2026-04-17',
+        date: daysFromNow(10),
         time: '13:00 - 14:30',
         age: '4–10 v',
         price: '15',
@@ -80,7 +86,7 @@ export async function POST(request: NextRequest) {
         category: 'musiikki',
         city: 'Helsinki',
         location: 'Musiikkitalo',
-        date: '2026-05-10',
+        date: daysFromNow(14),
         time: '14:00 - 15:30',
         age: '2–8 v',
         price: '12',
@@ -95,7 +101,7 @@ export async function POST(request: NextRequest) {
         category: 'sirkus',
         city: 'Vantaa',
         location: 'Sirkus Magenta',
-        date: '2026-05-17',
+        date: daysFromNow(20),
         time: '10:00 - 12:00',
         age: '6–14 v',
         price: '0',
@@ -108,7 +114,7 @@ export async function POST(request: NextRequest) {
         category: 'luonto',
         city: 'Espoo',
         location: 'Nuuksion kansallispuisto, pääsisäänkäynti',
-        date: '2026-05-24',
+        date: daysFromNow(28),
         time: '10:00 - 13:00',
         age: '5–12 v',
         price: '0',
@@ -121,7 +127,7 @@ export async function POST(request: NextRequest) {
         category: 'taide',
         city: 'Oulu',
         location: 'Oulun taidemuseo, työpajatila',
-        date: '2026-06-07',
+        date: daysFromNow(36),
         time: '12:00 - 15:00',
         age: '7–12 v',
         price: '10',
@@ -134,7 +140,7 @@ export async function POST(request: NextRequest) {
         category: 'liikunta',
         city: 'Turku',
         location: 'Paavo Nurmi -stadion',
-        date: '2026-06-14',
+        date: daysFromNow(45),
         time: '10:00 - 12:00',
         age: '5–10 v',
         price: '0',
@@ -147,7 +153,7 @@ export async function POST(request: NextRequest) {
         category: 'liikunta',
         city: 'Jyväskylä',
         location: 'Kauppakatu 1 (kokoontumispiste)',
-        date: '2026-06-21',
+        date: daysFromNow(60),
         time: '11:00 - 13:00',
         age: '4–12 v',
         price: '0',

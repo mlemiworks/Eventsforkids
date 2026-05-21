@@ -11,6 +11,7 @@ import {
 } from '@/src/components/ui/Illustrations';
 import { Category } from '@/src/types/types';
 import EventMapClient from '@/src/components/EventMapClient';
+import WeatherForecast from '@/src/components/WeatherForecast';
 
 // Full Finnish long-form date: "lauantai 19. huhtikuuta 2025"
 function formatDate(iso: string) {
@@ -157,6 +158,19 @@ export default async function EventPage({
               locationName={event.location}
             />
           )}
+
+          {/* Weather — shown for future events within the 16-day forecast window */}
+          {(() => {
+            if (!event.city) return null;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const eventDate = new Date(event.date);
+            const diffDays = Math.round(
+              (eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
+            );
+            if (diffDays < 0 || diffDays > 16) return null;
+            return <WeatherForecast city={event.city} date={event.date} />;
+          })()}
 
           {/* Delete / edit — only rendered for the event creator */}
           <EventActions

@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { Input } from './ui/Input';
 import { Button } from './ui/Button';
@@ -97,6 +97,9 @@ export default function LoginDropdown({
           className="bg-surface border border-border rounded-xl shadow-(--shadow-card-hover) p-5 w-72"
         >
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+            {message && (
+              <p className="text-sm text-ink-soft">{message}</p>
+            )}
             <Input
               type="email"
               placeholder="Sähköposti"

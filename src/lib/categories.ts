@@ -59,28 +59,37 @@ export const CATEGORY_BY_KEY = Object.fromEntries(
 
 // City list for the filter dropdown and the create-event form
 export const CITIES = [
-  'Helsinki',
-  'Espoo',
-  'Tampere',
-  'Vantaa',
-  'Oulu',
-  'Turku',
-  'Jyväskylä',
-  'Lahti',
-  'Kuopio',
-  'Pori',
-  'Joensuu',
-  'Lappeenranta',
-  'Hämeenlinna',
-  'Vaasa',
-  'Rovaniemi',
-  'Seinäjoki',
-  'Mikkeli',
-  'Kotka',
-  'Kouvola',
-  'Hyvinkää',
-  'Järvenpää',
-  'Porvoo',
-  'Lohja',
-  'Rauma',
+  { name: 'Helsinki', lat: 60.1699, lng: 24.9384 },
+  { name: 'Espoo', lat: 60.2052, lng: 24.6522 },
+  { name: 'Tampere', lat: 61.4978, lng: 23.761 },
+  { name: 'Vantaa', lat: 60.2934, lng: 25.0378 },
+  { name: 'Oulu', lat: 65.0121, lng: 25.4651 },
+  { name: 'Turku', lat: 60.4518, lng: 22.2666 },
+  { name: 'Jyväskylä', lat: 62.2426, lng: 25.7473 },
+  { name: 'Lahti', lat: 60.9827, lng: 25.6612 },
+  { name: 'Kuopio', lat: 62.898, lng: 27.6782 },
+  { name: 'Pori', lat: 61.4851, lng: 21.7971 },
+  { name: 'Joensuu', lat: 62.601, lng: 29.7636 },
+  { name: 'Lappeenranta', lat: 61.0587, lng: 28.1887 },
+  { name: 'Hämeenlinna', lat: 60.9959, lng: 24.464 },
+  { name: 'Vaasa', lat: 63.0951, lng: 21.6165 },
+  { name: 'Rovaniemi', lat: 66.5039, lng: 25.7294 },
+  { name: 'Seinäjoki', lat: 62.7868, lng: 22.8403 },
+  { name: 'Mikkeli', lat: 61.6887, lng: 27.2726 },
+  { name: 'Kotka', lat: 60.4669, lng: 26.9458 },
+  { name: 'Kouvola', lat: 60.8679, lng: 26.7042 },
+  { name: 'Hyvinkää', lat: 60.6304, lng: 24.8597 },
+  { name: 'Järvenpää', lat: 60.4734, lng: 25.0864 },
+  { name: 'Porvoo', lat: 60.3924, lng: 25.6644 },
+  { name: 'Lohja', lat: 60.249, lng: 24.065 },
+  { name: 'Rauma', lat: 61.1279, lng: 21.5115 },
 ];
+
+export function getCityCoords(
+  city: string,
+): { lat: number; lng: number } | null {
+  const match = CITIES.find(
+    (c) => c.name.toLowerCase() === city.toLowerCase(),
+  );
+  return match ? { lat: match.lat, lng: match.lng } : null;
+}

@@ -151,8 +151,8 @@ export default function EventForm({
           <Select value={fields.city} onChange={set('city')}>
             <option value="">Valitse kaupunki</option>
             {CITIES.map((c) => (
-              <option key={c} value={c}>
-                {c}
+              <option key={c.name} value={c.name}>
+                {c.name}
               </option>
             ))}
           </Select>

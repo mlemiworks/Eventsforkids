@@ -52,6 +52,8 @@ export const createEvent = async (fields: {
   description?: string | null;
   price?: string | null;
   createdBy?: string | null;
+  lat?: number | null;
+  lng?: number | null;
 }) => {
   return prisma.event.create({ data: fields });
 };
@@ -81,6 +83,8 @@ export const updateEvent = async (
     city: string;
     age: string | null;
     price: string | null;
+    lat: number | null;
+    lng: number | null;
   }>,
 ) => {
   try {

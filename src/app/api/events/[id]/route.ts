@@ -74,6 +74,8 @@ export async function PUT(
     city?: string;
     age?: string;
     price?: string;
+    lat?: number | null;
+    lng?: number | null;
   };
 
   if (!body.title?.trim() || !body.date?.trim()) {
@@ -105,6 +107,9 @@ export async function PUT(
     city: body.city?.trim() || undefined,
     age: body.age?.trim() || null,
     price,
+    // undefined means "don't touch the existing value"; null means "clear it"
+    lat: body.lat !== undefined ? body.lat : undefined,
+    lng: body.lng !== undefined ? body.lng : undefined,
   });
 
   return NextResponse.json({ id: updated?.id });

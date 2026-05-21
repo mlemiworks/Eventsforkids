@@ -85,6 +85,8 @@ export async function POST(request: NextRequest) {
         age: '2–8 v',
         price: '12',
         imgUrl: 'music',
+        lat: 60.1733,
+        lng: 24.9314,
       },
       {
         title: 'Pienten sirkuskoulu',

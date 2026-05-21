@@ -22,11 +22,12 @@ export async function POST(request: NextRequest) {
     location?: string;
     description?: string;
     imgUrl?: string;
-    // New optional fields
     category?: string;
     city?: string;
     age?: string;
     price?: string; // arrives as string from the form's number input
+    lat?: number | null;
+    lng?: number | null;
   };
 
   const { title, date } = body;
@@ -61,6 +62,8 @@ export async function POST(request: NextRequest) {
     // price stays as a string — the DB stores it as String, not a number
     price:       body.price?.trim() || null,
     createdBy:   session.user.email,
+    lat:         body.lat ?? null,
+    lng:         body.lng ?? null,
   });
 
   return NextResponse.json({ id: event.id });

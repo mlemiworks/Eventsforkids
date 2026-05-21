@@ -10,6 +10,7 @@ import {
   IllustrationId,
 } from '@/src/components/ui/Illustrations';
 import { Category } from '@/src/types/types';
+import EventMapClient from '@/src/components/EventMapClient';
 
 // Full Finnish long-form date: "lauantai 19. huhtikuuta 2025"
 function formatDate(iso: string) {
@@ -147,6 +148,15 @@ export default async function EventPage({
               last
             />
           </div>
+
+          {/* Map — only shown when the event creator pinned a location */}
+          {event.lat != null && event.lng != null && (
+            <EventMapClient
+              lat={event.lat}
+              lng={event.lng}
+              locationName={event.location}
+            />
+          )}
 
           {/* Delete / edit — only rendered for the event creator */}
           <EventActions

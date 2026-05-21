@@ -9,6 +9,10 @@ import { Textarea } from './ui/Textarea';
 import { Button } from './ui/Button';
 import { IllustrationPicker } from './ui/Illustrations';
 import { ImageUploader } from './ui/ImageUploader';
+// Leaflet accesses `window` on import, so it can't run during SSR.
+// dynamic with ssr:false defers the import to the browser only.
+import dynamic from 'next/dynamic';
+const LocationPicker = dynamic(() => import('./LocationPicker'), { ssr: false });
 
 // All form values are kept as strings because HTML inputs always return strings.
 // The caller's onSubmit receives this shape and converts price → number before the API call.
@@ -23,6 +27,8 @@ export type FormFields = {
   location: string;
   description: string;
   imgUrl: string;
+  lat: number | null;
+  lng: number | null;
 };
 
 const EMPTY: FormFields = {
@@ -36,6 +42,8 @@ const EMPTY: FormFields = {
   location: '',
   description: '',
   imgUrl: '',
+  lat: null,
+  lng: null,
 };
 
 // Converts an existing Event to the string-based FormFields shape for pre-filling the edit form.
@@ -56,6 +64,8 @@ export function eventToFormFields(event: Event): FormFields {
     location: e.location,
     description: e.description ?? '',   // description is string | null in Prisma
     imgUrl: e.imgUrl,
+    lat: e.lat ?? null,
+    lng: e.lng ?? null,
   };
 }
 
@@ -148,6 +158,20 @@ export default function EventForm({
           </Select>
         </Field>
       </div>
+
+      {/* Location picker — shown when a city is selected */}
+      {fields.city && (
+        <Field label="Sijainti kartalla">
+          <LocationPicker
+            city={fields.city}
+            initialLat={fields.lat ?? undefined}
+            initialLng={fields.lng ?? undefined}
+            onLocationPick={(lat: number, lng: number) =>
+              setFields((prev) => ({ ...prev, lat, lng }))
+            }
+          />
+        </Field>
+      )}
 
       {/* Date + time + price — three columns */}
       <div className="grid sm:grid-cols-3 gap-4">

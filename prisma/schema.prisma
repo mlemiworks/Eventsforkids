@@ -23,6 +23,8 @@ model Event {
   price       String?
   createdBy   String?
   createdAt   DateTime @default(now())
+  lat         Float?   // latitude — null if user didn't pin a location
+  lng         Float?   // longitude — null if user didn't pin a location
 
   user        User?    @relation(fields: [createdBy], references: [email])
 }

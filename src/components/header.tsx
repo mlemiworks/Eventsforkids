@@ -1,7 +1,7 @@
 'use client';
 // Header must be a client component so it can read auth status (useSession),
 // watch the current path (usePathname), and manage dropdown state (useState).
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
 // usePathname is a Next.js hook that returns the current URL path so we can
 // highlight the active nav link without any extra state.
@@ -73,6 +73,9 @@ export default function Header() {
   const [loginOpen, setLoginOpen] = useState(false);
   const [loginMessage, setLoginMessage] = useState('');
   const [mobileOpen, setMobileOpen] = useState(false);
+  // Prevents a requiresAuth nav link from reopening the dropdown when Radix's
+  // outside-click handler (pointerdown) closes it just before onClick fires.
+  const suppressNextOpen = useRef(false);
 
   // Simple email-based admin check — a proper role field on User would be cleaner
   // but this is enough until the admin route is built out.
@@ -131,9 +134,18 @@ export default function Header() {
               <Link
                 key={item.href}
                 href={item.href}
+                onPointerDown={() => {
+                  if (requiresAuth && loginOpen)
+                    suppressNextOpen.current = true;
+                }}
                 onClick={(e) => {
                   if (requiresAuth) {
                     e.preventDefault();
+                    // A bit of a hack to prevent the dropdown from reopening immediately when clicking
+                    if (suppressNextOpen.current) {
+                      suppressNextOpen.current = false;
+                      return;
+                    }
                     setLoginMessage('Kirjaudu sisään jatkaaksesi.');
                     setLoginOpen(true);
                   }
@@ -199,9 +211,18 @@ export default function Header() {
               <Link
                 key={item.href}
                 href={item.href}
+                onPointerDown={() => {
+                  if (requiresAuth && loginOpen)
+                    suppressNextOpen.current = true;
+                }}
                 onClick={(e) => {
                   if (requiresAuth) {
                     e.preventDefault();
+                    if (suppressNextOpen.current) {
+                      suppressNextOpen.current = false;
+                      closeMobile();
+                      return;
+                    }
                     setLoginMessage('Kirjaudu sisään jatkaaksesi.');
                     setLoginOpen(true);
                   }

@@ -37,7 +37,7 @@ export const CATEGORIES: {
   },
   {
     key: 'sirkus',
-    name: 'Sirkus',
+    name: 'Sirkus ja Tanssi',
     color: 'var(--color-cat-sirkus)',
     ink: '#3d3800',
   },
@@ -88,8 +88,6 @@ export const CITIES = [
 export function getCityCoords(
   city: string,
 ): { lat: number; lng: number } | null {
-  const match = CITIES.find(
-    (c) => c.name.toLowerCase() === city.toLowerCase(),
-  );
+  const match = CITIES.find((c) => c.name.toLowerCase() === city.toLowerCase());
   return match ? { lat: match.lat, lng: match.lng } : null;
 }

@@ -71,6 +71,8 @@ async function main() {
       age: '2–6 v',
       price: '0',
       imgUrl: '/testImages/reading.jpg',
+      lat: 60.2038,
+      lng: 24.6588,
     },
     {
       title: 'Lasten teatteriesitys: Tuhkimo',
@@ -84,6 +86,8 @@ async function main() {
       age: '4–10 v',
       price: '15',
       imgUrl: '/testImages/rangers.jpg',
+      lat: 61.4981,
+      lng: 23.7619,
     },
     {
       title: 'Perhekonsertti: Eläinten karnevaalit',
@@ -97,6 +101,8 @@ async function main() {
       age: '2–8 v',
       price: '12',
       imgUrl: 'music',
+      lat: 60.1733,
+      lng: 24.9314,
     },
     {
       title: 'Pienten sirkuskoulu',
@@ -110,6 +116,8 @@ async function main() {
       age: '6–14 v',
       price: '0',
       imgUrl: 'sirkus',
+      lat: 60.2108,
+      lng: 25.0822,
     },
     {
       title: 'Luontoretkikerho: Kevään merkit',
@@ -149,6 +157,8 @@ async function main() {
       age: '5–10 v',
       price: '0',
       imgUrl: 'liikunta',
+      lat: 65.0189,
+      lng: 25.4824,
     },
     {
       title: 'Perhepyöräily: Kaupunkiseikkailu',
@@ -162,6 +172,8 @@ async function main() {
       age: '4–12 v',
       price: '0',
       imgUrl: 'liikunta',
+      lat: 62.2382,
+      lng: 25.7384,
     },
   ];
 

@@ -37,7 +37,7 @@ export default function EventCard({ event: _event }: { event: Event }) {
     // group enables child elements to react to the card's hover state via group-hover:
     <Link
       href={`/${event.id}`}
-      className="group block bg-surface rounded-card border border-border shadow-(--shadow-card) overflow-hidden transition-shadow hover:shadow-(--shadow-card-hover)"
+      className="group flex flex-col bg-surface rounded-card border border-border shadow-(--shadow-card) overflow-hidden transition-shadow hover:shadow-(--shadow-card-hover)"
     >
       {/* Image area — tinted with the category color when no photo is present */}
       {/*
@@ -85,7 +85,7 @@ export default function EventCard({ event: _event }: { event: Event }) {
         )}
       </div>
 
-      <div className="p-5">
+      <div className="p-5 flex flex-col flex-1">
         <h3 className="font-display text-lg font-bold text-ink leading-tight mb-2">
           {event.title}
         </h3>
@@ -97,7 +97,7 @@ export default function EventCard({ event: _event }: { event: Event }) {
           <span>{event.city ?? event.location}</span>
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mt-auto">
           {/* ?? '–' gives a dash when age is not set, keeping the row balanced */}
           <span className="text-xs text-ink-soft">Ikä {event.age ?? '–'}</span>
           <span className="text-sm font-semibold text-ink">

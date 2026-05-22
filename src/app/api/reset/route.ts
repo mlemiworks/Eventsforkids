@@ -27,6 +27,7 @@ export async function POST(request: NextRequest) {
         email: 'testi@example.com',
         password:
           '$2b$10$5ztgBy8iKkrUafrq3uOfc.YT/c/mwXlB6a42aCQWfHoada2/0z04W',
+        name: 'testUser',
       },
       {
         email: 'admin@example.fi',
@@ -65,6 +66,8 @@ export async function POST(request: NextRequest) {
         age: '2–6 v',
         price: '0',
         imgUrl: '/testImages/reading.jpg',
+        lat: 60.2038,
+        lng: 24.6588,
       },
       {
         title: 'Lasten teatteriesitys: Tuhkimo',
@@ -78,6 +81,8 @@ export async function POST(request: NextRequest) {
         age: '4–10 v',
         price: '15',
         imgUrl: '/testImages/rangers.jpg',
+        lat: 61.4981,
+        lng: 23.7619,
       },
       {
         title: 'Perhekonsertti: Eläinten karnevaalit',
@@ -106,6 +111,8 @@ export async function POST(request: NextRequest) {
         age: '6–14 v',
         price: '0',
         imgUrl: 'sirkus',
+        lat: 60.2108,
+        lng: 25.0822,
       },
       {
         title: 'Luontoretkikerho: Kevään merkit',
@@ -145,6 +152,8 @@ export async function POST(request: NextRequest) {
         age: '5–10 v',
         price: '0',
         imgUrl: 'liikunta',
+        lat: 65.0189,
+        lng: 25.4824,
       },
       {
         title: 'Perhepyöräily: Kaupunkiseikkailu',
@@ -158,6 +167,8 @@ export async function POST(request: NextRequest) {
         age: '4–12 v',
         price: '0',
         imgUrl: 'liikunta',
+        lat: 62.2382,
+        lng: 25.7384,
       },
     ],
   });
